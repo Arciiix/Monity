@@ -1,0 +1,77 @@
+.loginForm {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.logo {
+  margin: 10px;
+}
+.loginText {
+  color: white;
+  font-size: 3em;
+  margin: 10px;
+  text-align: center;
+}
+.inputElement {
+  margin: 10px 0px;
+}
+.formOptionsWrapper {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 10px;
+  flex-direction: row;
+}
+.link {
+  font-size: 1rem;
+}
+.button {
+  margin: 10px 0;
+}
+
+.registerLinkWrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  margin: 20px 0px;
+}
+
+.registerText {
+  font-size: 1.2em;
+}
+
+.sidebar {
+  position: relative;
+}
+.sidebarWrapper {
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  height: 99vh;
+  width: 100%;
+  z-index: 999;
+}
+
+.backgroundImage {
+  position: absolute;
+  filter: brightness(25%);
+}
+
+.logoLink {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-decoration: none;
+}
+.logoLink span {
+  text-decoration: none;
+}
+
+@media only screen and (max-width: 600px) {
+  .formOptionsWrapper {
+    flex-direction: column;
+  }
+}
