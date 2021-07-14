@@ -1,0 +1,36 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.logoWrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.header {
+  color: white;
+  font-size: 3em;
+  margin: 10px;
+  text-align: center;
+}
+
+.input {
+  margin: 5px 0;
+}
+.formSectionHeader {
+  color: white;
+  font-size: 2.5em;
+  margin: 5px 0;
+}
+
+.optionHelper {
+  font-size: 1em;
+}
+
+.button {
+  margin: 5px 0;
+}
