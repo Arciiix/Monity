@@ -15,6 +15,7 @@ const User = db.define("User", {
       len: [4, 32],
       is: /^(?=.*[A-Za-z0-9]$)[A-Za-z][A-Za-z\d.-_]*$/,
     },
+    unique: true,
   },
   email: {
     type: DataTypes.STRING,
@@ -22,6 +23,7 @@ const User = db.define("User", {
     validate: {
       isEmail: true,
     },
+    unique: true,
   },
   password: {
     type: DataTypes.STRING,
