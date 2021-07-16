@@ -1,10 +1,10 @@
 import express from "express";
-import Log from "./log";
+import { initDB } from "./database";
+import logger from "./log";
 
 const PORT = process.env.PORT || 6565;
 
 const app = express();
-const logger = new Log(true);
 
 app.get("/", (req, res) => {
   //DEV
@@ -15,3 +15,5 @@ app.get("/", (req, res) => {
 app.listen(PORT, () => {
   logger.info(`App has started on port ${PORT}`, "EXPRESS");
 });
+
+initDB();

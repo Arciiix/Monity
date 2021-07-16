@@ -14,7 +14,7 @@ class Log {
   }
 
   log(
-    message: string,
+    message: any,
     level: logLevels,
     label?: string,
     dontWriteToFile?: boolean
@@ -22,7 +22,11 @@ class Log {
     console.log(
       `[${
         this.getLevelColor(level) + level.toString() + "\x1b[0m"
-      }] [${formatDate(new Date())}]${label ? ` (${label})` : ""} ${message}`
+      }] [${formatDate(new Date())}]${label ? ` (${label})` : ""} ${
+        typeof message === "object" && message !== null
+          ? JSON.stringify(message)
+          : message.toString()
+      }`
     );
 
     let log = {
@@ -41,14 +45,14 @@ class Log {
     });
   }
 
-  info(message: string, label?: string, dontWriteToFile?: boolean) {
+  info(message: any, label?: string, dontWriteToFile?: boolean) {
     this.log(message, logLevels.info, label, dontWriteToFile);
   }
 
-  debug(message: string, label?: string, dontWriteToFile?: boolean) {
+  debug(message: any, label?: string, dontWriteToFile?: boolean) {
     this.log(message, logLevels.debug, label, dontWriteToFile);
   }
-  error(message: string, label?: string, dontWriteToFile?: boolean) {
+  error(message: any, label?: string, dontWriteToFile?: boolean) {
     this.log(message, logLevels.error, label, dontWriteToFile);
   }
 
@@ -67,7 +71,9 @@ class Log {
   }
 }
 
-export default Log;
+let logger = new Log(true);
+
+export default logger;
 
 /*
 Alternative way (needs winston):
