@@ -3,7 +3,7 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { constants } from "../utils";
 
-const refreshTokens: string[] = [];
+const refreshTokens: { id: string; token: string }[] = [];
 
 async function login(
   login: string,
@@ -44,7 +44,9 @@ async function login(
     { expiresIn: "60d" }
   );
 
-  refreshTokens.push(refreshToken);
+  if (!refreshTokens.find((e) => e.id === user.id)) {
+    refreshTokens.push({ id: user.id, token: refreshToken });
+  }
 
   return {
     error: false,
