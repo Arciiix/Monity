@@ -25,3 +25,11 @@ yarn-error.log*
 
 # icon project
 /icon_project
+
+
+# server
+/server/node_modules
+/server/dist
+
+# logs
+server/logs.log
