@@ -3,6 +3,8 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { constants } from "../utils";
 
+const refreshTokens: string[] = [];
+
 async function login(
   login: string,
   password: string
@@ -41,6 +43,8 @@ async function login(
     constants.jwtSecretRefersh,
     { expiresIn: "60d" }
   );
+
+  refreshTokens.push(refreshToken);
 
   return {
     error: false,

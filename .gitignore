@@ -32,6 +32,7 @@ yarn-error.log*
 /server/dist
 /server/db.db
 /server/constants.ts
+server/db.db-journal
 
 
 # logs
