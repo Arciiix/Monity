@@ -22,6 +22,7 @@ function Login(): ReactElement {
   let [showPassword, setShowPassword] = useState(false);
   let [rememberMe, setRememberMe] = useState(false);
   let [windowSize, setWindowSize] = useState({ width: 0, height: 0 });
+  let [errors, setErrors] = useState({ login: false, password: false });
 
   const calculateImageSize = (): void => {
     let height: number = document.body.clientHeight;
@@ -30,10 +31,54 @@ function Login(): ReactElement {
     setWindowSize({ width: (2 / 3) * width - 20, height: height });
   };
 
+  const tryToLogin = async (): Promise<void> => {
+    if (!login) {
+      setErrors({ login: true, password: errors.password });
+      return;
+    }
+    if (!password) {
+      setErrors({ password: true, login: errors.login });
+      return;
+    }
+
+    let loginRequest = await fetch(
+      `/api/user/login?${new URLSearchParams({
+        login: encodeURIComponent(login),
+        password: encodeURIComponent(password),
+      })}`
+    );
+
+    switch (loginRequest.status) {
+      case 404:
+        setErrors({ login: true, password: false });
+        return;
+      case 403:
+        setErrors({ login: false, password: true });
+        return;
+      case 200:
+        setErrors({ login: false, password: false });
+        break;
+      default:
+        //TODO: Handle an error
+        console.error(`Unexpected error: ${await loginRequest.json()}`);
+        return;
+    }
+
+    //If user has selected "remember me", save the login to the localStorage
+    window.localStorage.setItem("rememberMeLogin", rememberMe ? login : "");
+
+    let loginResponse = await loginRequest.json();
+
+    console.log(loginResponse);
+  };
+
   useEffect(() => {
     calculateImageSize();
 
     window.addEventListener("resize", () => calculateImageSize());
+
+    //In case user wanted the app to remember his login, set it as an input value
+    setLogin(window.localStorage.getItem("rememberMeLogin") ?? "");
   }, []);
 
   return (
@@ -96,6 +141,7 @@ function Login(): ReactElement {
             variant="outlined"
             value={login}
             onChange={(e) => setLogin(e.target.value)}
+            error={errors.login}
           />
           <TextField
             className={styles.inputElement}
@@ -104,6 +150,7 @@ function Login(): ReactElement {
             type={showPassword ? "text" : "password"}
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+            error={errors.password}
             InputProps={{
               endAdornment: (
                 <InputAdornment position="end">
@@ -134,7 +181,12 @@ function Login(): ReactElement {
             </Link>
           </div>
 
-          <Button className={styles.button} variant="outlined" color="primary">
+          <Button
+            className={styles.button}
+            variant="outlined"
+            color="primary"
+            onClick={tryToLogin}
+          >
             Zaloguj się
           </Button>
         </FormControl>
