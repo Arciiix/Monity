@@ -141,7 +141,7 @@ async function register(
   });
 
   if (userExistObj) {
-    return { error: true, errorCode: "ALREADY_EXIST" };
+    return { error: true, errorCode: "ALREADY_EXISTS" };
   }
 
   //Create the user

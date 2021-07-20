@@ -31,13 +31,43 @@ function Register(): ReactElement {
   });
 
   const register = async (): Promise<void> => {
-    let errors: IErrorsObject = validate();
+    let {
+      isError,
+      errors,
+    }: { isError: boolean; errors: IErrorsObject } = validate();
     setErrors(errors);
-    //DEV
-    //TODO: If there's no error, register the user
+    if (!isError) {
+      let registerRequest = await fetch("/api/user/register", {
+        method: "POST",
+        body: JSON.stringify({
+          login: login,
+          email: email,
+          password: password,
+        }),
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      let registerResponse = await registerRequest.json();
+      if (registerResponse.error) {
+        if (
+          (registerResponse.errorCode as string) &&
+          registerResponse.errorCode.includes("VALIDATION")
+        ) {
+          let { errors }: { errors: IErrorsObject } = validate();
+          setErrors(errors);
+          return;
+        }
+        //TODO: Handle an error
+        return;
+      }
+
+      window.location.href = "/";
+    }
   };
 
-  const validate = (): IErrorsObject => {
+  const validate = (): { isError: boolean; errors: IErrorsObject } => {
     let errors: string[] = [];
 
     //Login
@@ -68,7 +98,7 @@ function Register(): ReactElement {
 
     let errorsObject: IErrorsObject = errorCodesToString(errors);
 
-    return errorsObject;
+    return { isError: errors.length !== 0, errors: errorsObject };
   };
 
   const errorCodesToString = (errorCodes: string[]): IErrorsObject => {

@@ -42,16 +42,14 @@ router.get("/login", async (req, res) => {
 });
 
 router.post("/register", async (req, res) => {
-  if (!req.query.login || !req.query.email || !req.query.password) {
-    return res
-      .status(400)
-      .send({ error: true, errorCode: "MISSING_QUERY_PARAMS" });
+  if (!req.body.login || !req.body.email || !req.body.password) {
+    return res.status(400).send({ error: true, errorCode: "MISSING_PARAMS" });
   }
 
   let result = await register(
-    req.query.login as string,
-    req.query.email as string,
-    req.query.password as string
+    req.body.login as string,
+    req.body.email as string,
+    req.body.password as string
   );
 
   if (result.error) {

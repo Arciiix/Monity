@@ -1,6 +1,6 @@
 function HomePage() {
   return (
-    <div>
+    <div style={{ display: "flex", flexDirection: "column" }}>
       <span>Monity</span>
       <span>TODO: Make this page</span>
     </div>
