@@ -31,7 +31,7 @@ yarn-error.log*
 /server/node_modules
 /server/dist
 /server/db.db
-/server/constants.ts
+/server/.env
 server/db.db-journal
 
 

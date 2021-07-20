@@ -3,9 +3,10 @@ import cookieParser from "cookie-parser";
 import bodyParser from "body-parser";
 import { initDB } from "./database";
 import logger from "./log";
+import { constants } from "./utils";
 import apiRouter from "./routes/apiRouter";
 
-const PORT = process.env.PORT || 6565;
+const PORT = constants.PORT || 6565;
 
 const app = express();
 app.use(cookieParser());

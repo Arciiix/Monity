@@ -1,18 +1,16 @@
+import dotenv from "dotenv";
+dotenv.config();
+
 /**
  *@name Constants
-  @description If you want to specify your constants in a file, follow the schema below:
+  @description Provide following params as the environment variables (or the .env file)
  *@param {string} jwtSecretAccess
  *@param {string} jwtSecretRefersh
+ *@param {number} PORT
  */
 
-import constantsFile from "./constants";
-
-//If user has specified the constants in env, set them first. Otherwise, set the ones from the file
-const jwtSecretAccess =
-  process.env.jwtSecretAccess || constantsFile.jwtSecretAccess;
-const jwtSecretRefersh =
-  process.env.jwtSecretRefersh || constantsFile.jwtSecretRefersh;
-const constants = { jwtSecretAccess, jwtSecretRefersh };
+const { jwtSecretAccess, jwtSecretRefersh, PORT } = process.env;
+const constants = { jwtSecretAccess, jwtSecretRefersh, PORT };
 
 /**
  * @name formatDate
