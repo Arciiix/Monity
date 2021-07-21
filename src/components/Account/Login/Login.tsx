@@ -24,11 +24,19 @@ function Login(): ReactElement {
   let [windowSize, setWindowSize] = useState({ width: 0, height: 0 });
   let [errors, setErrors] = useState({ login: false, password: false });
 
-  const calculateImageSize = (): void => {
-    let height: number = document.body.clientHeight;
-    let width = document.body.clientWidth;
+  let calculateImageSizeTimeout: ReturnType<typeof setTimeout> | null = null;
 
-    setWindowSize({ width: (2 / 3) * width - 20, height: height });
+  const calculateImageSize = (): void => {
+    //Don't reload the image every single time the window size changes - instead wait for the end of the resize (until user stops changing the window size)
+    if (calculateImageSizeTimeout) {
+      clearTimeout(calculateImageSizeTimeout);
+    }
+    calculateImageSizeTimeout = setTimeout(() => {
+      let height: number = document.body.clientHeight;
+      let width = document.body.clientWidth;
+
+      setWindowSize({ width: (2 / 3) * width - 20, height: height });
+    }, 500);
   };
 
   const tryToLogin = async (): Promise<void> => {
