@@ -11,8 +11,8 @@ router.get("/login", async (req, res) => {
   }
 
   let result = await login(
-    req.query.login as string,
-    req.query.password as string
+    decodeURIComponent(req.query.login as string),
+    decodeURIComponent(req.query.password as string)
   );
   if (result.error) {
     if (result.errorCode === "NOT_FOUND") {

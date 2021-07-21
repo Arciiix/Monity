@@ -22,12 +22,22 @@ async function login(
     email: string;
   };
 }> {
-  let user: any = await User.findOne({
-    where: {
-      login: login,
-    },
-  });
+  let user: any;
 
+  if (login.includes("@")) {
+    console.log("by email");
+    user = await User.findOne({
+      where: {
+        email: login,
+      },
+    });
+  } else {
+    user = await User.findOne({
+      where: {
+        login: login,
+      },
+    });
+  }
   if (!user) return { error: true, errorCode: "NOT_FOUND" };
 
   let compare: boolean = await bcrypt.compare(password, user.password);

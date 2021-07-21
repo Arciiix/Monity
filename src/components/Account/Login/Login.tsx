@@ -68,8 +68,6 @@ function Login(): ReactElement {
     window.localStorage.setItem("rememberMeLogin", rememberMe ? login : "");
 
     let loginResponse = await loginRequest.json();
-
-    console.log(loginResponse);
   };
 
   useEffect(() => {
@@ -137,7 +135,7 @@ function Login(): ReactElement {
         <FormControl>
           <TextField
             className={styles.inputElement}
-            label="Login"
+            label="Login lub e-mail"
             variant="outlined"
             value={login}
             onChange={(e) => setLogin(e.target.value)}

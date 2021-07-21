@@ -58,9 +58,26 @@ function Register(): ReactElement {
           let { errors }: { errors: IErrorsObject } = validate();
           setErrors(errors);
           return;
+        } else if (
+          (registerResponse.errorCode as string) &&
+          registerResponse.errorCode === "ALREADY_EXISTS"
+        ) {
+          setErrors({
+            ...errors,
+            login: [
+              ...errors.login,
+              "Konto o podanym adresie e-mail lub loginie już istnieje.",
+            ],
+            email: [
+              ...errors.email,
+              "Konto o podanym adresie e-mail lub loginie już istnieje.",
+            ],
+          });
+          return;
+        } else {
+          //TODO: Handle an error
+          return;
         }
-        //TODO: Handle an error
-        return;
       }
 
       window.location.href = "/";
@@ -117,7 +134,7 @@ function Register(): ReactElement {
           break;
         case "VALIDATION_LOGIN_FORMAT":
           errorsObject.login.push(
-            "Login może zawierać tylko litery (bez polskich znaków), cyfry, kropki, myślniki i podkreślenia oraz zaczynać się od litery."
+            "Login może zawierać tylko litery (bez polskich znaków), cyfry, kropki, myślniki i podkreślenia oraz zaczynać się od litery i kończyć cyfrą lub literą."
           );
           break;
         case "VALIDATION_PASSWORD_LENGTH":
