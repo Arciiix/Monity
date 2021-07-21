@@ -198,4 +198,82 @@ async function register(
   };
 }
 
-export { login, register, generateRefreshToken, generateAccessToken };
+async function validateToken(
+  token: string,
+  isAccessToken: boolean
+): Promise<{
+  error: boolean;
+  errorCode?: string;
+  data?: any;
+}> {
+  return await new Promise((resolve: any) => {
+    jwt.verify(
+      token,
+      isAccessToken ? constants.jwtSecretAccess : constants.jwtSecretRefersh,
+      (err, decoded) => {
+        if (err) {
+          resolve({ error: true, errorCode: err.name });
+        } else {
+          resolve({ error: false, data: decoded });
+        }
+      }
+    );
+  });
+}
+
+async function authorize(
+  refreshToken: string,
+  accessToken?: string
+): Promise<{
+  error: boolean;
+  errorCode?: string;
+  accessToken?: string;
+  data?: { id: string; login: string; email: string };
+}> {
+  let refreshTokenValidation = await validateToken(refreshToken, false);
+  if (refreshTokenValidation.error) {
+    if (refreshTokenValidation?.errorCode === "TokenExpiredError") {
+      return { error: true, errorCode: "REFRESHTOKEN_EXPIRED" };
+    } else {
+      return { error: true, errorCode: "WRONG_REFRESHTOKEN" };
+    }
+  }
+  if (!refreshTokens.find((e) => e.token === refreshToken)) {
+    return { error: true, errorCode: "REFRESHTOKEN_NOTFOUND" };
+  }
+
+  let newAccessToken: string = "";
+
+  if (accessToken) {
+    let accessTokenValidation = await validateToken(accessToken, true);
+    if (!accessTokenValidation.error) newAccessToken = accessToken;
+  }
+
+  if (!newAccessToken) {
+    //If the access token is invalid/expired/empty, generate a new one
+    newAccessToken = generateAccessToken(
+      refreshTokenValidation.data.id,
+      refreshTokenValidation.data.login,
+      refreshTokenValidation.data.email
+    );
+  }
+
+  return {
+    error: false,
+    accessToken: newAccessToken,
+    data: {
+      id: refreshTokenValidation.data.id,
+      login: refreshTokenValidation.data.login,
+      email: refreshTokenValidation.data.email,
+    },
+  };
+}
+
+export {
+  login,
+  register,
+  authorize,
+  generateRefreshToken,
+  generateAccessToken,
+  validateToken,
+};
