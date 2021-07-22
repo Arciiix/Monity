@@ -1,11 +1,5 @@
 import { useEffect, useState } from "react";
-import errorToast from "../Utils/errorToast/errorToast";
-
-interface IUserData {
-  id: string;
-  login: string;
-  email: string;
-}
+import { authorize, IUserData } from "../Utils/auth";
 
 function HomePage() {
   let [isLoading, setIsLoading] = useState(true);
@@ -15,26 +9,13 @@ function HomePage() {
     email: "",
   });
 
-  const authorize = async (): Promise<void> => {
-    let request = await fetch(`/api/user/auth`);
-    if (request.status !== 200) {
-      window.location.href = "/login";
-    } else {
-      let response = await request.json();
-      if (response.error) {
-        errorToast(
-          `Unexpected error - ${JSON.stringify(response)} WITH STATUS ${
-            request.status
-          }`
-        );
-      } else {
-        setUserData(response.data);
-      }
-    }
+  const auth = async (): Promise<void> => {
+    let authData: IUserData = await authorize();
+    setUserData(authData);
   };
 
   useEffect(() => {
-    authorize().then(() => setIsLoading(false));
+    auth().then(() => setIsLoading(false));
   }, []);
 
   if (isLoading) {

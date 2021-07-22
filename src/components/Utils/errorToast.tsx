@@ -1,9 +1,14 @@
 import { toast } from "react-toastify";
 import { ErrorOutline } from "@material-ui/icons";
 
-function errorToast(error: string): void {
+function errorToast(error: string, isFatal?: boolean): void {
+  if (isFatal) {
+    //TODO: Redirect to the error page instantly
+    console.log("TODO: Redirect to the error page");
+    //return;
+  }
   toast.error(
-    <div className={"errorToastContainer"}>
+    <div className="errorToastContainer">
       <ErrorOutline /> <span>{error}</span>
     </div>,
     {

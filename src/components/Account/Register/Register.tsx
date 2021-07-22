@@ -9,7 +9,7 @@ import {
 } from "@material-ui/core";
 import { Visibility, VisibilityOff } from "@material-ui/icons";
 import { Link as LinkRouter } from "react-router-dom";
-import errorToast from "../../Utils/errorToast/errorToast";
+import errorToast from "../../Utils/errorToast";
 
 import styles from "./Register.module.css";
 

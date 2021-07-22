@@ -15,7 +15,7 @@ import { Visibility, VisibilityOff } from "@material-ui/icons";
 import { Link as LinkRouter } from "react-router-dom";
 
 import styles from "./Login.module.css";
-import errorToast from "../../Utils/errorToast/errorToast";
+import errorToast from "../../Utils/errorToast";
 
 function Login(): ReactElement {
   let [login, setLogin] = useState("");
