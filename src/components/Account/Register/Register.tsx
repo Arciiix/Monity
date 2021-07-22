@@ -9,6 +9,7 @@ import {
 } from "@material-ui/core";
 import { Visibility, VisibilityOff } from "@material-ui/icons";
 import { Link as LinkRouter } from "react-router-dom";
+import errorToast from "../../Utils/errorToast/errorToast";
 
 import styles from "./Register.module.css";
 
@@ -75,7 +76,11 @@ function Register(): ReactElement {
           });
           return;
         } else {
-          //TODO: Handle an error
+          errorToast(
+            `Unexpected error - ${JSON.stringify(
+              registerResponse
+            )} WITH STATUS ${registerRequest.status}`
+          );
           return;
         }
       }
@@ -151,8 +156,7 @@ function Register(): ReactElement {
           errorsObject.email.push("To nie jest prawidłowy adres e-mail.");
           break;
         default:
-          //TODO: Handle an unexpected error
-          console.error(`Unexpected error: ${e}`);
+          errorToast(`Unexpected error: ${e}`);
           break;
       }
     });

@@ -15,6 +15,7 @@ import { Visibility, VisibilityOff } from "@material-ui/icons";
 import { Link as LinkRouter } from "react-router-dom";
 
 import styles from "./Login.module.css";
+import errorToast from "../../Utils/errorToast/errorToast";
 
 function Login(): ReactElement {
   let [login, setLogin] = useState("");
@@ -67,8 +68,11 @@ function Login(): ReactElement {
         setErrors({ login: false, password: false });
         break;
       default:
-        //TODO: Handle an error
-        console.error(`Unexpected error: ${await loginRequest.json()}`);
+        errorToast(
+          `Unexpected error - ${JSON.stringify(
+            await loginRequest.json()
+          )} WITH STATUS ${loginRequest.status}`
+        );
         return;
     }
 

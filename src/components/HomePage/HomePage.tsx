@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import errorToast from "../Utils/errorToast/errorToast";
 
 interface IUserData {
   id: string;
@@ -21,7 +22,11 @@ function HomePage() {
     } else {
       let response = await request.json();
       if (response.error) {
-        //TODO: Handle an error
+        errorToast(
+          `Unexpected error - ${JSON.stringify(response)} WITH STATUS ${
+            request.status
+          }`
+        );
       } else {
         setUserData(response.data);
       }

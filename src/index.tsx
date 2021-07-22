@@ -13,6 +13,8 @@ import {
 } from "@material-ui/core/styles";
 import { lightBlue } from "@material-ui/core/colors";
 
+import "react-toastify/dist/ReactToastify.css";
+import { ToastContainer } from "react-toastify";
 const theme = createTheme({
   palette: {
     type: "dark",
@@ -26,6 +28,7 @@ ReactDOM.render(
       <StylesProvider injectFirst>
         <Provider store={store}>
           <CssBaseline />
+          <ToastContainer />
           <App />
         </Provider>
       </StylesProvider>
