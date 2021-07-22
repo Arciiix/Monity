@@ -78,6 +78,7 @@ router.post("/register", async (req, res) => {
       httpOnly: true,
       maxAge: 1000 * 60 * 60 * 24 * 60,
     });
+    res.status(201);
   }
   res.send({
     error: result.error,
