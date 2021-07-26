@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import Loading from "../Loading/Loading";
 import { authorize, IUserData } from "../Utils/auth";
 
 function HomePage() {
@@ -7,19 +8,25 @@ function HomePage() {
     id: "",
     login: "",
     email: "",
+    authorized: false,
   });
 
-  const auth = async (): Promise<void> => {
+  const auth = async (): Promise<boolean> => {
     let authData: IUserData = await authorize();
     setUserData(authData);
+    return authData.authorized;
   };
 
   useEffect(() => {
-    auth().then(() => setIsLoading(false));
+    auth().then((authorized) => {
+      if (authorized) {
+        setIsLoading(false);
+      }
+    });
   }, []);
 
   if (isLoading) {
-    return <h1>Loading...</h1>; //TODO: Make the loading site
+    return <Loading />;
   } else {
     return (
       <div style={{ display: "flex", flexDirection: "column" }}>

@@ -4,13 +4,14 @@ interface IUserData {
   id: string;
   login: string;
   email: string;
+  authorized: boolean;
 }
 
 async function authorize(): Promise<IUserData> {
   let request = await fetch(`/api/user/auth`);
   if (request.status !== 200) {
     window.location.href = "/login";
-    return { id: "", login: "", email: "" };
+    return { id: "", login: "", email: "", authorized: false };
   } else {
     let response = await request.json();
     if (response.error) {
@@ -20,9 +21,9 @@ async function authorize(): Promise<IUserData> {
         }`,
         true
       );
-      return { id: "", login: "", email: "" };
+      return { id: "", login: "", email: "", authorized: false };
     } else {
-      return response.data;
+      return { ...response.data, authorized: true };
     }
   }
 }
