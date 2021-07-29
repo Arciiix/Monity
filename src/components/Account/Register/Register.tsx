@@ -85,7 +85,7 @@ function Register(): ReactElement {
         }
       }
 
-      window.location.href = "/";
+      window.location.href = "/app/overview";
     }
   };
 

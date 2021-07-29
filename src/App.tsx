@@ -10,7 +10,7 @@ import {
 import HomePage from "./components/HomePage/HomePage";
 import Login from "./components/Account/Login/Login";
 import Register from "./components/Account/Register/Register";
-import Overview from "./components/App/Overview/Overview";
+import AppWrapper, { components } from "./components/App/AppWrapper";
 
 function App() {
   return (
@@ -25,11 +25,12 @@ function App() {
         <Route path="/register" exact>
           <Register />
         </Route>
-        <Route path="/app/" exact>
-          <Redirect to="/app/overview" />
-        </Route>
+
         <Route path="/app/overview" exact>
-          <Overview />
+          <AppWrapper component={components.OVERVIEW} />
+        </Route>
+        <Route path="/app/">
+          <Redirect to="/app/overview" />
         </Route>
       </Switch>
     </Router>

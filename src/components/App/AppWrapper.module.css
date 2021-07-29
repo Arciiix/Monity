@@ -1,0 +1,72 @@
+.container {
+  display: flex;
+  flex-direction: row;
+}
+.drawerWrapper {
+  width: 240px;
+}
+.drawer {
+  width: 240px;
+}
+.content {
+  width: calc(100% - 240px);
+}
+.appBar {
+  width: calc(100% - 240px);
+  color: white;
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+}
+.accountDetails {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  margin: 5px;
+  padding: 5px;
+}
+.accountName {
+  font-size: 2em;
+}
+.accountValue {
+  font-size: 1.5em;
+}
+.appBarIcon {
+  font-size: 2em;
+}
+
+.accountsSelectionText {
+  word-wrap: break-word;
+}
+
+.accountsMenuItemText {
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+  max-width: calc(100% - 2em);
+}
+
+.accountsMenuItem {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+}
+
+@media only screen and (max-width: 959px) {
+  .content {
+    width: 100%;
+  }
+  .appBar {
+    width: 100%;
+  }
+}
+
+@media only screen and (min-width: 960px) {
+  .content {
+    width: calc(100% - 240px);
+  }
+  .appBar {
+    width: calc(100% - 240px);
+  }
+}

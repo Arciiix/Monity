@@ -80,6 +80,8 @@ function Login(): ReactElement {
     window.localStorage.setItem("rememberMeLogin", rememberMe ? login : "");
 
     let loginResponse = await loginRequest.json();
+
+    window.location.href = "/app/overview";
   };
 
   useEffect(() => {
