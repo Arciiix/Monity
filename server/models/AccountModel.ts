@@ -20,7 +20,7 @@ const Account = db.define("Account", {
     validate: {
       is: /^#[0-9A-F]{6}$/i,
     },
-    defaultValue: "#03a9f4",
+    defaultValue: "#32a852",
   },
   value: {
     type: DataTypes.BIGINT,

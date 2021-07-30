@@ -3,6 +3,7 @@ import Loading from "../Loading/Loading";
 import { authorize, IUserData, logOut } from "../Utils/auth";
 import { setTitle } from "../Utils/setTitle";
 import { valueToString } from "../Utils/valueToString";
+import { getSimplifiedAccounts } from "../Utils/getAppData";
 
 import {
   Drawer,
@@ -110,41 +111,28 @@ function AppWrapper({
     }
   };
 
+  const getData = async (): Promise<boolean> => {
+    let simplifiedAccounts: {
+      error: boolean;
+      data?: IAccountSimplified[];
+    } = await getSimplifiedAccounts();
+    if (!simplifiedAccounts.error) {
+      setSimplifiedAccounts(simplifiedAccounts.data || null);
+      return true;
+    } else {
+      return false;
+    }
+  };
+
   useEffect(() => {
     setTitle("");
     auth().then((authorized) => {
       if (authorized) {
-        //TODO: Fetch the simplified accounts
-        //DEV
-        setSimplifiedAccounts([
-          {
-            id: "13b7c6a4-b503-42a6-970b-2fc07235e9d9",
-            name:
-              "Przykładowe konto nr 1 - długi tekst, aby sprawdzić, czy wszystko dostosowywuje się do ekranu",
-            color: "#eb4034",
-            value: 12345,
-          },
-          {
-            id: "05fa3eef-03ea-4704-bcd2-a74fc085e7b0",
-            name: "Przykładowe konto nr 2",
-            color: "#4287f5",
-            value: 54321,
-          },
-          {
-            id: "8d49af67-764c-4b56-810c-afd893672e7b",
-            name: "Przykładowe konto nr 3",
-            color: "#32a852",
-            value: 5840,
-          },
-          {
-            id: "b765351e-7274-4a45-89c7-5463ee8cd68d",
-            name: "Przykładowe konto nr 4",
-            color: "#fcba03",
-            value: 0,
-          },
-        ]);
-
-        setIsLoading(false);
+        getData().then((isSuccess) => {
+          if (isSuccess) {
+            setIsLoading(false);
+          }
+        });
       }
     });
   }, []);
