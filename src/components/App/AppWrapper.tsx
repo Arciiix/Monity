@@ -1,6 +1,7 @@
 import { ReactElement, useEffect, useState } from "react";
 import Loading from "../Loading/Loading";
 import { authorize, IUserData, logOut } from "../Utils/auth";
+import { setTitle } from "../Utils/setTitle";
 
 import {
   Drawer,
@@ -101,6 +102,7 @@ function AppWrapper({
   };
 
   useEffect(() => {
+    setTitle("");
     auth().then((authorized) => {
       if (authorized) {
         //TODO: Fetch the simplified accounts

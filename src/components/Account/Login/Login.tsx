@@ -16,6 +16,7 @@ import { Link as LinkRouter } from "react-router-dom";
 
 import styles from "./Login.module.css";
 import errorToast from "../../Utils/errorToast";
+import { setTitle } from "../../Utils/setTitle";
 
 function Login(): ReactElement {
   let [login, setLogin] = useState("");
@@ -95,8 +96,10 @@ function Login(): ReactElement {
 
     window.addEventListener("resize", () => calculateImageSize());
 
-    //In case user wanted the app to remember his login, set it as an input value
+    //In case user wanted the app to remember his login, get and set it as an input value
     setLogin(window.localStorage.getItem("rememberMeLogin") ?? "");
+
+    setTitle("logowanie");
   }, []);
 
   return (

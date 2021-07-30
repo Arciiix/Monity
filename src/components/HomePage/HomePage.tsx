@@ -1,7 +1,13 @@
+import { useEffect } from "react";
 import { Button } from "@material-ui/core";
 import { Link } from "react-router-dom";
+import { setTitle } from "../Utils/setTitle";
 
 function HomePage() {
+  useEffect(() => {
+    setTitle("");
+  }, []);
+
   return (
     <div style={{ display: "flex", flexDirection: "column" }}>
       <span>Monity</span>

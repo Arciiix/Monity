@@ -1,4 +1,4 @@
-import { ReactElement, useState } from "react";
+import { ReactElement, useEffect, useState } from "react";
 import {
   Container,
   FormControl,
@@ -10,6 +10,7 @@ import {
 import { Visibility, VisibilityOff } from "@material-ui/icons";
 import { Link as LinkRouter } from "react-router-dom";
 import errorToast from "../../Utils/errorToast";
+import { setTitle } from "../../Utils/setTitle";
 
 import styles from "./Register.module.css";
 
@@ -163,6 +164,10 @@ function Register(): ReactElement {
 
     return errorsObject;
   };
+
+  useEffect(() => {
+    setTitle("rejestracja");
+  }, []);
 
   return (
     <Container className={styles.container}>
