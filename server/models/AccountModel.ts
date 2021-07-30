@@ -13,7 +13,7 @@ const Account = db.define("Account", {
     allowNull: false,
     validate: {
       len: [2, 32],
-      is: /^(?=.*[A-Za-z0-9]$)[A-Za-z][A-Za-z\d\.\-_]*$/,
+      is: /^(?=.*[A-Za-z0-9]$)[A-Za-z][A-Za-z\d\.\-_ąćęłńóśźżĄĆĘŁŃÓŚŹŻ]*$/,
     },
   },
   color: {

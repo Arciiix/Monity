@@ -189,6 +189,9 @@ async function register(
 
   let userInstance = userInstancePromise.data;
 
+  //Create a default "cash" account for the user
+  userInstance.createAccount({ name: "Gotówka" });
+
   let accessToken: string = generateAccessToken(
     userInstance.id,
     userInstance.login,
