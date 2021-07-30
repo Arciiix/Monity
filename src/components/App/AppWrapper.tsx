@@ -188,7 +188,7 @@ function AppWrapper({
                   <div className={styles.accountsMenuItemTextWrapper}>
                     <div
                       className={styles.accountsMenuColorCircle}
-                      style={{ backgroundColor: elem.color }}
+                      style={{ backgroundColor: elem.color || "#03a9f4" }}
                     ></div>
                     <span className={styles.accountsMenuItemText}>
                       {elem.name}
