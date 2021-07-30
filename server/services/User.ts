@@ -4,7 +4,7 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { constants } from "../utils";
 
-const refreshTokens: { id: string; token: string }[] = [];
+let refreshTokens: { id: string; token: string }[] = [];
 
 async function login(
   login: string,
@@ -285,6 +285,10 @@ async function authorize(
   };
 }
 
+function removeRefreshToken(token: string): void {
+  refreshTokens = refreshTokens.filter((e) => e.token !== token);
+}
+
 export {
   login,
   register,
@@ -292,4 +296,5 @@ export {
   generateRefreshToken,
   generateAccessToken,
   validateToken,
+  removeRefreshToken,
 };

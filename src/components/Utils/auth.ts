@@ -7,10 +7,12 @@ interface IUserData {
   authorized: boolean;
 }
 
-async function authorize(): Promise<IUserData> {
+async function authorize(dontRedirect?: boolean): Promise<IUserData> {
   let request = await fetch(`/api/user/auth`);
   if (request.status !== 200) {
-    window.location.href = "/login";
+    if (!dontRedirect) {
+      window.location.href = "/login";
+    }
     return { id: "", login: "", email: "", authorized: false };
   } else {
     let response = await request.json();
@@ -29,8 +31,18 @@ async function authorize(): Promise<IUserData> {
 }
 
 async function logOut(): Promise<{ error: boolean }> {
-  //TODO: Make the logOut function
-  //DEV
+  let request = await fetch(`/api/user/logout`, { method: "DELETE" });
+
+  if (request.status !== 200) {
+    errorToast(
+      `Unexpected error - ${await request.text()} WITH STATUS ${
+        request.status
+      }`,
+      true
+    );
+    return { error: true };
+  }
+
   return { error: false };
 }
 

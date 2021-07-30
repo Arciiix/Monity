@@ -1,5 +1,10 @@
 import express from "express";
-import { login, register, authorize } from "../services/User";
+import {
+  login,
+  register,
+  authorize,
+  removeRefreshToken,
+} from "../services/User";
 
 const router = express.Router();
 
@@ -118,6 +123,18 @@ router.get("/auth", async (req, res) => {
     }
     res.send({ error: false, data: tokenAuthorization.data });
   }
+});
+
+router.delete("/logout", (req, res) => {
+  if (!req.cookies.accessToken || !req.cookies.refreshToken) {
+    return res.status(400).send({ error: true, errorCode: "NO_TOKEN" });
+  }
+
+  removeRefreshToken(req.cookies.refreshToken || "");
+  res.clearCookie("accessToken");
+  res.clearCookie("refreshToken");
+
+  res.send({ error: false });
 });
 
 export default router;

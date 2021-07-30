@@ -103,7 +103,7 @@ function Login(): ReactElement {
     setTitle("logowanie");
 
     //If user is logged already, redirect to the app
-    authorize().then(({ authorized }) => {
+    authorize(true).then(({ authorized }) => {
       if (authorized) {
         window.location.href = "/app/overview";
       }
