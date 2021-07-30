@@ -3,6 +3,8 @@ import { db } from "../database";
 import { v4 as uuidv4 } from "uuid";
 import bcrypt from "bcrypt";
 
+import Account from "./AccountModel";
+
 const User = db.define("User", {
   id: {
     type: DataTypes.UUID,
@@ -37,5 +39,7 @@ User.beforeCreate(async (user: any) => {
 
   return user;
 });
+
+User.hasMany(Account);
 
 export default User;
