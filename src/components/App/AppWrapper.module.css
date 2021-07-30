@@ -39,11 +39,18 @@
   word-wrap: break-word;
 }
 
+.accountsMenuItemTextWrapper {
+  max-width: calc(100% - 2em);
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
 .accountsMenuItemText {
   text-overflow: ellipsis;
   overflow: hidden;
   white-space: nowrap;
-  max-width: calc(100% - 2em);
+  max-width: calc(100% - 1em);
 }
 
 .accountsMenuItem {
@@ -51,6 +58,17 @@
   flex-direction: row;
   justify-content: space-between;
   align-items: center;
+}
+
+.addIcon {
+  margin-right: 5px;
+}
+
+.accountsMenuColorCircle {
+  width: 0.75em;
+  height: 0.75em;
+  border-radius: 50%;
+  margin-right: 5px;
 }
 
 @media only screen and (max-width: 959px) {

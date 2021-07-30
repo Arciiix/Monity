@@ -16,7 +16,11 @@ import {
 } from "@material-ui/core";
 
 import styles from "./AppWrapper.module.css";
-import { Menu as MenuIcon, Edit as EditIcon } from "@material-ui/icons";
+import {
+  Menu as MenuIcon,
+  Edit as EditIcon,
+  Add as AddIcon,
+} from "@material-ui/icons";
 
 import { IAccountSimplified } from "./components/Account";
 
@@ -72,7 +76,14 @@ function AppWrapper({
     setAccountsMenuAnchor(null);
   };
 
-  const handleAccountsMenuClose = () => {
+  const handleAccountsMenuClose = (): void => {
+    setAccountsMenuAnchor(null);
+  };
+
+  const handleCreateNewAccountClick = (): void => {
+    //TODO: Redirect to the create new account page
+    //DEV
+    console.log("DEV: CREATE/ACCOUNT");
     setAccountsMenuAnchor(null);
   };
 
@@ -133,6 +144,7 @@ function AppWrapper({
         >
           Wybierz konto
         </MenuItem>
+        <Divider />
         {simplifiedAccounts?.map(
           (elem: IAccountSimplified): ReactElement => {
             return (
@@ -142,14 +154,23 @@ function AppWrapper({
                 selected={elem.id === currentAccount?.id}
                 onClick={() => handleAccountSelectionClick(elem.id)}
               >
-                <span className={styles.accountsMenuItemText}>{elem.name}</span>
+                <div className={styles.accountsMenuItemTextWrapper}>
+                  <div
+                    className={styles.accountsMenuColorCircle}
+                    style={{ backgroundColor: elem.color }}
+                  ></div>
+                  <span className={styles.accountsMenuItemText}>
+                    {elem.name}
+                  </span>
+                </div>
                 <IconButton
                   onClick={(e) => {
                     e.stopPropagation();
                     //TODO: Handle edit
                     //DEV
-                    console.log(`DEV: EDIT/${elem.id}/${elem.name}`);
+                    console.log(`DEV: EDIT/ACCOUNT/${elem.id}/${elem.name}`);
                   }}
+                  onMouseDown={(e) => e.stopPropagation()}
                 >
                   <EditIcon />
                 </IconButton>
@@ -157,6 +178,14 @@ function AppWrapper({
             );
           }
         )}
+        <Divider />
+        <MenuItem
+          key="createNewAccount"
+          onClick={() => handleCreateNewAccountClick()}
+        >
+          <AddIcon className={styles.addIcon} />
+          <span className={styles.accountsMenuItemText}>Nowe konto</span>
+        </MenuItem>
       </Menu>
     </div>
   );
