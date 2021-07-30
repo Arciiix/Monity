@@ -2,6 +2,7 @@ import { ReactElement, useEffect, useState } from "react";
 import Loading from "../Loading/Loading";
 import { authorize, IUserData, logOut } from "../Utils/auth";
 import { setTitle } from "../Utils/setTitle";
+import { valueToString } from "../Utils/valueToString";
 
 import {
   Drawer,
@@ -61,6 +62,14 @@ function AppWrapper({
     let authData: IUserData = await authorize();
     setUserData(authData);
     return authData.authorized;
+  };
+
+  const calculateTotalAccountsValue = (): number => {
+    return (
+      simplifiedAccounts
+        ?.map((e) => e.value)
+        .reduce((prev: number, curr: number) => prev + curr) || 0
+    );
   };
 
   const handleToggleMobileDrawer = (): void => {
@@ -125,7 +134,13 @@ function AppWrapper({
             id: "8d49af67-764c-4b56-810c-afd893672e7b",
             name: "Przykładowe konto nr 3",
             color: "#32a852",
-            value: 2133,
+            value: 5840,
+          },
+          {
+            id: "b765351e-7274-4a45-89c7-5463ee8cd68d",
+            name: "Przykładowe konto nr 4",
+            color: "#fcba03",
+            value: 0,
           },
         ]);
 
@@ -256,15 +271,27 @@ function AppWrapper({
           </Box>
         </nav>
         <div className={styles.content}>
-          <AppBar className={styles.appBar} position="fixed">
+          <AppBar
+            className={styles.appBar}
+            style={{ backgroundColor: currentAccount?.color || "#03a9f4" }}
+            position="fixed"
+          >
             <Box display={{ xs: "flex", md: "none" }}>
               <IconButton onClick={handleToggleMobileDrawer}>
                 <MenuIcon className={styles.appBarIcon} />
               </IconButton>
             </Box>
             <div className={styles.accountDetails}>
-              <span className={styles.accountName}>Nazwa konta</span>
-              <span className={styles.accountValue}>999,99 zł</span>
+              <span className={styles.accountName}>
+                {currentAccount?.name || "Wszystkie konta"}
+              </span>
+              <span className={styles.accountValue}>
+                {valueToString(
+                  currentAccount
+                    ? currentAccount.value
+                    : calculateTotalAccountsValue()
+                )}
+              </span>
             </div>
           </AppBar>
         </div>
