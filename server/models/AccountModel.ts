@@ -6,13 +6,14 @@ const Account = db.define("Account", {
   id: {
     type: DataTypes.UUID,
     primaryKey: true,
+    unique: true,
   },
   name: {
     type: DataTypes.STRING,
     allowNull: false,
     validate: {
       len: [2, 32],
-      is: /^(?=.*[A-Za-z0-9]$)[A-Za-z][A-Za-z\d.-_]*$/,
+      is: /^(?=.*[A-Za-z0-9]$)[A-Za-z][A-Za-z\d\.\-_]*$/,
     },
   },
   color: {

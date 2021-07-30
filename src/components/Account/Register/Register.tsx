@@ -99,7 +99,7 @@ function Register(): ReactElement {
       errors.push("VALIDATION_LOGIN_LENGTH");
     }
 
-    let loginRegEx = /^(?=.*[A-Za-z0-9]$)[A-Za-z][A-Za-z\d.-_]*$/;
+    let loginRegEx = /^(?=.*[A-Za-z0-9]$)[A-Za-z][A-Za-z\d\.\-_]*$/;
     if (!loginRegEx.test(login)) {
       errors.push("VALIDATION_LOGIN_FORMAT");
     }

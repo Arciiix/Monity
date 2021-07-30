@@ -39,7 +39,7 @@ async function login(
     });
   } else {
     //Prevent SQL Injection
-    let loginRegEx = /^(?=.*[A-Za-z0-9]$)[A-Za-z][A-Za-z\d.-_]*$/;
+    let loginRegEx = /^(?=.*[A-Za-z0-9]$)[A-Za-z][A-Za-z\d\.\-_]*$/;
     if (!loginRegEx.test(login)) {
       return { error: true, errorCode: "WRONG_LOGIN_FORMAT" };
     }
@@ -130,7 +130,7 @@ async function register(
     return { error: true, errorCode: "VALIDATION_LOGIN_LENGTH" };
   }
 
-  let loginRegEx = /^(?=.*[A-Za-z0-9]$)[A-Za-z][A-Za-z\d.-_]*$/;
+  let loginRegEx = /^(?=.*[A-Za-z0-9]$)[A-Za-z][A-Za-z\d\.\-_]*$/;
   if (!loginRegEx.test(login)) {
     return { error: true, errorCode: "VALIDATION_LOGIN_FORMAT" };
   }
