@@ -7,7 +7,7 @@ function HomePage() {
       <span>Monity</span>
       <span>TODO: Make the HomePage</span>
       <div style={{ width: "300px" }}>
-        <Link to="/app">
+        <Link to="/login">
           <Button variant="contained" color="primary">
             Login
           </Button>
