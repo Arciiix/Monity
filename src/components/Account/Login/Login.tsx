@@ -59,10 +59,16 @@ function Login(): ReactElement {
 
     switch (loginRequest.status) {
       case 404:
+        //Wrong login
         setErrors({ login: true, password: false });
         return;
       case 403:
+        //Wrong password
         setErrors({ login: false, password: true });
+        return;
+      case 400:
+        //Invalid login format (using forbidden characters)
+        setErrors({ login: true, password: false });
         return;
       case 200:
         setErrors({ login: false, password: false });

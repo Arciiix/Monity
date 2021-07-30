@@ -19,6 +19,11 @@ router.get("/login", async (req, res) => {
       res.status(404);
     } else if (result.errorCode === "WRONG_PASSWORD") {
       res.status(403);
+    } else if (
+      result.errorCode === "WRONG_EMAIL_FORMAT" ||
+      result.errorCode === "WRONG_LOGIN_FORMAT"
+    ) {
+      res.status(400);
     } else {
       res.status(500);
     }

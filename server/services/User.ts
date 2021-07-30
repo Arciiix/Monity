@@ -1,4 +1,4 @@
-import { Op } from "sequelize";
+import { Op, Sequelize } from "sequelize";
 import User from "../models/UserModel";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
@@ -22,20 +22,33 @@ async function login(
     email: string;
   };
 }> {
+  login = login.toLowerCase();
   let user: any;
 
   if (login.includes("@")) {
-    console.log("by email");
+    //Prevent SQL Injection
+    let emailRegEx = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+    if (!emailRegEx.test(login)) {
+      return { error: true, errorCode: "WRONG_EMAIL_FORMAT" };
+    }
+
     user = await User.findOne({
       where: {
         email: login,
       },
     });
   } else {
+    //Prevent SQL Injection
+    let loginRegEx = /^(?=.*[A-Za-z0-9]$)[A-Za-z][A-Za-z\d.-_]*$/;
+    if (!loginRegEx.test(login)) {
+      return { error: true, errorCode: "WRONG_LOGIN_FORMAT" };
+    }
+
     user = await User.findOne({
-      where: {
-        login: login,
-      },
+      where: Sequelize.where(
+        Sequelize.fn("lower", Sequelize.col("login")),
+        Sequelize.fn("lower", login)
+      ),
     });
   }
   if (!user) return { error: true, errorCode: "NOT_FOUND" };
@@ -108,6 +121,8 @@ async function register(
     email: string;
   };
 }> {
+  email = email.toLowerCase();
+
   //The same validation as on the client-side. I don't want the client to call the server every time - I have to do the same on the server to avoid making a cross-site request.
 
   //Login
@@ -140,9 +155,10 @@ async function register(
   let userExistObj = await User.findOne({
     where: {
       [Op.or]: [
-        {
-          login: login,
-        },
+        Sequelize.where(
+          Sequelize.fn("lower", Sequelize.col("login")),
+          Sequelize.fn("lower", login)
+        ),
         {
           email: email,
         },
