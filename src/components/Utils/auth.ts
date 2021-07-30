@@ -28,5 +28,11 @@ async function authorize(): Promise<IUserData> {
   }
 }
 
-export { authorize };
+async function logOut(): Promise<{ error: boolean }> {
+  //TODO: Make the logOut function
+  //DEV
+  return { error: false };
+}
+
+export { authorize, logOut };
 export type { IUserData };
