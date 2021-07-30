@@ -17,6 +17,7 @@ import { Link as LinkRouter } from "react-router-dom";
 import styles from "./Login.module.css";
 import errorToast from "../../Utils/errorToast";
 import { setTitle } from "../../Utils/setTitle";
+import { authorize } from "../../Utils/auth";
 
 function Login(): ReactElement {
   let [login, setLogin] = useState("");
@@ -100,6 +101,13 @@ function Login(): ReactElement {
     setLogin(window.localStorage.getItem("rememberMeLogin") ?? "");
 
     setTitle("logowanie");
+
+    //If user is logged already, redirect to the app
+    authorize().then(({ authorized }) => {
+      if (authorized) {
+        window.location.href = "/app/overview";
+      }
+    });
   }, []);
 
   return (

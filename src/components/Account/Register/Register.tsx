@@ -11,6 +11,7 @@ import { Visibility, VisibilityOff } from "@material-ui/icons";
 import { Link as LinkRouter } from "react-router-dom";
 import errorToast from "../../Utils/errorToast";
 import { setTitle } from "../../Utils/setTitle";
+import { authorize } from "../../Utils/auth";
 
 import styles from "./Register.module.css";
 
@@ -167,6 +168,13 @@ function Register(): ReactElement {
 
   useEffect(() => {
     setTitle("rejestracja");
+
+    //If user is logged already, redirect to the app
+    authorize().then(({ authorized }) => {
+      if (authorized) {
+        window.location.href = "/app/overview";
+      }
+    });
   }, []);
 
   return (
