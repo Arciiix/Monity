@@ -69,7 +69,7 @@ function AppWrapper({
     return (
       simplifiedAccounts
         ?.map((e) => e.value)
-        .reduce((prev: number, curr: number) => prev + curr) || 0
+        .reduce((prev: number, curr: number) => prev + curr, 0) || 0
     );
   };
 

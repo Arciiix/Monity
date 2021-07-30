@@ -9,7 +9,16 @@ function errorToast(error: string, isFatal?: boolean): void {
   }
   toast.error(
     <div className="errorToastContainer">
-      <ErrorOutline /> <span>{error}</span>
+      <ErrorOutline />{" "}
+      <span
+        style={{
+          overflowWrap: "break-word",
+          wordWrap: "break-word",
+          width: "60%",
+        }}
+      >
+        {error}
+      </span>
     </div>,
     {
       autoClose: false,
