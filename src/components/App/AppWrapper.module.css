@@ -20,7 +20,20 @@
   color: white;
   display: flex;
   flex-direction: row;
+  justify-content: space-between;
+}
+.appBarContent {
+  color: white;
+  display: flex;
+  flex-direction: row;
   justify-content: flex-start;
+}
+.appBarActions {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-end;
+  margin-right: 5px;
 }
 .accountDetails {
   display: flex;

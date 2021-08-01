@@ -111,6 +111,15 @@ function AppWrapper({
     }
   };
 
+  const getAppBarColor = (): string => {
+    switch (component) {
+      case components.OVERVIEW:
+        return currentAccount?.color || "#03a9f4";
+      default:
+        return "#03a9f4";
+    }
+  };
+
   const getData = async (): Promise<boolean> => {
     let simplifiedAccounts: {
       error: boolean;
@@ -237,6 +246,19 @@ function AppWrapper({
     </div>
   );
 
+  const overviewAppBarContent = (
+    <div className={styles.accountDetails}>
+      <span className={styles.accountName}>
+        {currentAccount?.name || "Wszystkie konta"}
+      </span>
+      <span className={styles.accountValue}>
+        {valueToString(
+          currentAccount ? currentAccount.value : calculateTotalAccountsValue()
+        )}
+      </span>
+    </div>
+  );
+
   if (isLoading) {
     return <Loading />;
   } else {
@@ -261,25 +283,19 @@ function AppWrapper({
         <div className={styles.content}>
           <AppBar
             className={styles.appBar}
-            style={{ backgroundColor: currentAccount?.color || "#03a9f4" }}
+            style={{ backgroundColor: getAppBarColor() }}
             position="fixed"
           >
-            <Box display={{ xs: "flex", md: "none" }}>
-              <IconButton onClick={handleToggleMobileDrawer}>
-                <MenuIcon className={styles.appBarIcon} />
-              </IconButton>
-            </Box>
-            <div className={styles.accountDetails}>
-              <span className={styles.accountName}>
-                {currentAccount?.name || "Wszystkie konta"}
-              </span>
-              <span className={styles.accountValue}>
-                {valueToString(
-                  currentAccount
-                    ? currentAccount.value
-                    : calculateTotalAccountsValue()
-                )}
-              </span>
+            <div className={styles.appBarContent}>
+              <Box display={{ xs: "flex", md: "none" }}>
+                <IconButton onClick={handleToggleMobileDrawer}>
+                  <MenuIcon className={styles.appBarIcon} />
+                </IconButton>
+              </Box>
+              {component === components.OVERVIEW && overviewAppBarContent}
+            </div>
+            <div className={styles.appBarActions}>
+              <MenuIcon />
             </div>
           </AppBar>
         </div>
