@@ -89,7 +89,7 @@ function AccountForm({
         {!isEdit && (
           <TextField
             className={styles.input}
-            label="Początkowa kwota"
+            label="Początkowa kwota [zł]"
             variant="filled"
             value={initialValue}
             onChange={handleInitialValueChange}
