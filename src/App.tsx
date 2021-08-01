@@ -29,6 +29,9 @@ function App() {
         <Route path="/app/overview" exact>
           <AppWrapper component={components.OVERVIEW} />
         </Route>
+        <Route path="/app/account/add" exact>
+          <AppWrapper component={components.ADD_ACCOUNT} />
+        </Route>
         <Route path="/app/">
           <Redirect to="/app/overview" />
         </Route>

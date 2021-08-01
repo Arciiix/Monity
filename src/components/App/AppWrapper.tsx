@@ -4,6 +4,7 @@ import { authorize, IUserData, logOut } from "../Utils/auth";
 import { setTitle } from "../Utils/setTitle";
 import { valueToString } from "../Utils/valueToString";
 import { getSimplifiedAccounts } from "../Utils/getAppData";
+import { useHistory, useLocation } from "react-router";
 
 import {
   Drawer,
@@ -18,6 +19,7 @@ import {
   Menu,
   MenuItem,
   Button,
+  Toolbar,
 } from "@material-ui/core";
 
 import styles from "./AppWrapper.module.css";
@@ -32,8 +34,12 @@ import {
 
 import { IAccountSimplified } from "./components/Account";
 
+import Overview from "./Overview/Overview";
+import AddAccount from "./components/AddAccount/AddAccount";
+
 enum components {
   OVERVIEW,
+  ADD_ACCOUNT,
 }
 
 function AppWrapper({
@@ -41,6 +47,9 @@ function AppWrapper({
 }: {
   component: components;
 }) {
+  const routerHistory = useHistory();
+  const routerLocation = useLocation();
+
   let [isLoading, setIsLoading] = useState(true);
   let [userData, setUserData] = useState<IUserData>({
     id: "",
@@ -88,6 +97,10 @@ function AppWrapper({
       let newCurrentAccount =
         simplifiedAccounts?.find((e) => e.id === id) || null;
       setCurrentAccount(newCurrentAccount);
+
+      if (routerLocation.pathname !== "/app/overview") {
+        routerHistory.push("/app/overview");
+      }
     }
     setAccountsMenuAnchor(null);
   };
@@ -97,9 +110,7 @@ function AppWrapper({
   };
 
   const handleCreateNewAccountClick = (): void => {
-    //TODO: Redirect to the create new account page
-    //DEV
-    console.log("DEV: CREATE/ACCOUNT");
+    routerHistory.push("/app/account/add");
     setAccountsMenuAnchor(null);
   };
 
@@ -108,6 +119,12 @@ function AppWrapper({
     if (!logOutStatus.error) {
       //TODO: Make the "You've been successfully logged out" page
       window.location.href = "/";
+    }
+  };
+
+  const goToOverview = (): void => {
+    if (routerLocation.pathname !== "/app/overview") {
+      routerHistory.push("/app/overview");
     }
   };
 
@@ -217,7 +234,7 @@ function AppWrapper({
         </Menu>
         <Divider />
         <List>
-          <ListItem button key="overviewLink">
+          <ListItem button key="overviewLink" onClick={goToOverview}>
             <ListItemIcon>
               <HomeIcon />
             </ListItemIcon>
@@ -259,6 +276,10 @@ function AppWrapper({
     </div>
   );
 
+  const addAcountAppBarContent = (
+    <span className={styles.appBarHeader}>Dodaj konto</span>
+  );
+
   if (isLoading) {
     return <Loading />;
   } else {
@@ -293,11 +314,15 @@ function AppWrapper({
                 </IconButton>
               </Box>
               {component === components.OVERVIEW && overviewAppBarContent}
+              {component === components.ADD_ACCOUNT && addAcountAppBarContent}
             </div>
-            <div className={styles.appBarActions}>
-              <MenuIcon />
-            </div>
+            <div className={styles.appBarActions}></div>
           </AppBar>
+          <Toolbar />
+          <div className={styles.currentScreenContent}>
+            {component === components.OVERVIEW && <Overview />}
+            {component === components.ADD_ACCOUNT && <AddAccount />}
+          </div>
         </div>
       </div>
     );

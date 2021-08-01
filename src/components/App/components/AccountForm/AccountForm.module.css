@@ -1,0 +1,72 @@
+.formControl {
+  align-items: center;
+  width: 100%;
+}
+.input {
+  margin: 5px 0;
+  width: 100%;
+}
+.react-colorful,
+.colorPicker {
+  margin: 10px 0;
+  width: 100% !important;
+}
+
+.colorText {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  text-align: center;
+}
+
+.pickerPresetColors {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+}
+
+.pickerPresetColor {
+  width: 30px;
+  height: 30px;
+  margin: 5px;
+  border: none;
+  padding: 0;
+  border-radius: 5px;
+  cursor: pointer;
+  outline: none;
+}
+
+.manualColorSetWrapper {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  margin: 10px;
+  gap: 10px;
+}
+
+.accountPreview {
+  margin: 5px 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: flex-start;
+  min-width: 100%;
+  width: min-content;
+  min-height: 80px;
+  height: min-content;
+  word-wrap: break-all;
+  padding: 10px;
+  border-radius: 4px;
+}
+.accountName {
+  font-size: 2em;
+}
+.accountInitialValue {
+  font-size: 1.5em;
+}
+.submit {
+  margin: 10px 0;
+}
