@@ -34,7 +34,7 @@ import {
 
 import { IAccountSimplified } from "./components/Account";
 
-import Overview from "./Overview/Overview";
+import Overview from "./components/Overview/Overview";
 import AddAccount from "./components/AddAccount/AddAccount";
 
 enum components {
