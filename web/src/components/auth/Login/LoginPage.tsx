@@ -1,6 +1,6 @@
 import { Grid } from "@mui/material";
 import Login from "./Login/Login";
-import RandomPicture from "./utils/RandomPicture/RandomPicture";
+import RandomPicture from "../../RandomPicture/RandomPicture";
 
 function LoginPage() {
   return (

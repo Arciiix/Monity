@@ -1,6 +1,6 @@
 import Box from "@mui/material/Box";
 import { useLayoutEffect, useState } from "react";
-import Logo from "../../../../Logo/Logo";
+import Logo from "../Logo/Logo";
 
 import styles from "./RandomPicture.module.css";
 
@@ -34,7 +34,7 @@ function RandomPicture() {
 
     setTimeout(() => {
       setCurrentImgURL(urlPattern);
-    }, 1000);
+    }, 2000);
   };
 
   useLayoutEffect(() => {
