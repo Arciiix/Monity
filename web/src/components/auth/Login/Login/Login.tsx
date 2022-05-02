@@ -15,6 +15,7 @@ import isEmpty from "validator/lib/isEmpty";
 
 import styles from "./Login.module.css";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
+import LoadingOverlay from "../../../Loading/LoadingOverlay/LoadingOverlay";
 
 interface ILoginProps {
   hideRegister?: boolean;
@@ -28,6 +29,8 @@ function Login(props: ILoginProps) {
   let [rememberMe, setRememberMe] = useState(false);
 
   let [showPassword, setShowPassword] = useState(false);
+
+  let [isLoading, setIsLoading] = useState(false);
 
   //Contains the error messages of the login form
   let [errors, setErrors] = useState<{
@@ -73,6 +76,8 @@ function Login(props: ILoginProps) {
       return;
     }
 
+    setIsLoading(true);
+
     //TODO: Log in
 
     // If user has successfully logged in and the remember me checkbox is checked,
@@ -101,6 +106,7 @@ function Login(props: ILoginProps) {
       alignItems="center"
       p="15px"
     >
+      <LoadingOverlay isLoading={isLoading} />
       <h1>Login</h1>
       <Box width="100%" mb="5px">
         <TextField
