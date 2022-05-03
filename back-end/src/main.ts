@@ -1,4 +1,4 @@
-import { ValidationPipe } from "@nestjs/common";
+import { BadRequestException, Logger, ValidationPipe } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { NestFactory } from "@nestjs/core";
 import { DocumentBuilder, SwaggerModule } from "@nestjs/swagger";
@@ -16,11 +16,31 @@ async function bootstrap() {
   const apiDocsDocument = SwaggerModule.createDocument(app, apiDocsConfig);
   SwaggerModule.setup("docs", app, apiDocsDocument);
 
-  app.useGlobalPipes(new ValidationPipe());
+  const logger = new Logger();
+
+  app.useGlobalPipes(
+    new ValidationPipe({
+      exceptionFactory: (errors) => {
+        logger.log(errors, "Validation");
+
+        const errorMessages = {};
+        errors.forEach((error) => {
+          errorMessages[error.property] = Object.values(error.constraints);
+        });
+
+        throw new BadRequestException({
+          statusCode: 400,
+          error: "Bad Request",
+          errors: errorMessages,
+        });
+      },
+    })
+  );
 
   const config = app.get<ConfigService>(ConfigService);
   const portToRunOn = config.get("PORT") || PORT;
 
   await app.listen(portToRunOn);
+  logger.log(`Server running on port ${portToRunOn}`, "Bootstrap");
 }
 bootstrap();

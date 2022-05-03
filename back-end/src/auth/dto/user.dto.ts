@@ -8,16 +8,24 @@ import {
 } from "class-validator";
 
 class UserRegisterDto {
-  @ApiProperty({ type: String, description: "login" })
+  @ApiProperty({ type: String, description: "login", example: "john" })
   @Length(4, 20)
   @IsAlphanumeric()
   login: string;
 
-  @ApiProperty({ type: String, description: "email" })
+  @ApiProperty({
+    type: String,
+    description: "email",
+    example: "john@example.com",
+  })
   @IsEmail()
   email: string;
 
-  @ApiProperty({ type: String, description: "password" })
+  @ApiProperty({
+    type: String,
+    description: "password",
+    example: "UltraStrongPassword123",
+  })
   @Length(8, 32)
   @Matches(/^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])[a-zA-Z0-9!@#$%^&*]+$/, {
     message:
@@ -26,11 +34,15 @@ class UserRegisterDto {
   password: string;
 }
 class UserLoginDto {
-  @ApiProperty({ type: String, description: "login" })
+  @ApiProperty({ type: String, description: "login", example: "john" })
   @IsString()
   login: string;
 
-  @ApiProperty({ type: String, description: "password" })
+  @ApiProperty({
+    type: String,
+    description: "password",
+    example: "UltraStrongPassword123",
+  })
   @IsString()
   password: string;
 }
