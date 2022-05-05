@@ -1,12 +1,15 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Delete,
   Get,
   HttpCode,
+  Param,
   Post,
   Req,
   Res,
+  UnauthorizedException,
 } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import {
@@ -16,7 +19,9 @@ import {
   ApiForbiddenResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
+  ApiParam,
   ApiTags,
+  ApiUnauthorizedResponse,
 } from "@nestjs/swagger";
 import { User } from "@prisma/client";
 import { Request, Response } from "express";
@@ -121,13 +126,120 @@ export class AuthController {
     @Res({ passthrough: true }) res: Response
   ): Promise<Timestamp> {
     const refreshToken =
-      req.cookies.refreshToken || req.headers.authorization.split(" ")[1];
+      req.cookies.refreshToken || req.headers.authorization?.split(" ")[1];
 
     res.clearCookie("accessToken");
     res.clearCookie("refreshToken");
 
     const userId = (req.user as User).id;
-    return await this.authService.logout(refreshToken, userId);
+    if (refreshToken) {
+      return await this.authService.logout(refreshToken, userId);
+    } else {
+      return {
+        timestamp: new Date(),
+      };
+    }
+  }
+
+  @Post("authWith2FA/:code")
+  @ApiParam({
+    description: "Two factor authentication code",
+    name: "code",
+  })
+  @ApiOkResponse({
+    description: "User has been authenticated",
+    type: UserJWTReturnDto,
+  })
+  @ApiUnauthorizedResponse({
+    description: "User is unauthorized (is not logged in)",
+  })
+  @ApiConflictResponse({
+    description: "2FA not enabled or user has been already authenticated",
+  })
+  @ApiNotFoundResponse({ description: "User doesn't exist" })
+  @ApiForbiddenResponse({ description: "Wrong 2FA code" })
+  async authWith2FA(
+    @Req() req: Request,
+    @Param("code") code: string,
+    @Res({ passthrough: true }) res: Response
+  ): Promise<UserJWTReturnDto> {
+    const accessToken =
+      req.cookies.accessToken || req.headers.authorization?.split(" ")[1];
+
+    if (!accessToken) {
+      throw new UnauthorizedException("User is not logged in");
+    }
+
+    const response = await this.authService.authorizeWith2FA(code, accessToken);
+
+    res.cookie("accessToken", response.tokens.accessToken, {
+      httpOnly: true,
+      maxAge:
+        (this.configService.get("JWT_ACCESS_TOKEN_EXPIRES_IN") ||
+          JWT_ACCESS_TOKEN_EXPIRES_IN) * 1000,
+    });
+
+    res.cookie("refreshToken", response.tokens.accessToken, {
+      httpOnly: true,
+      maxAge:
+        (this.configService.get("JWT_REFRESH_TOKEN_EXPIRES_IN") ||
+          JWT_REFRESH_TOKEN_EXPIRES_IN) * 1000,
+    });
+
+    return response;
+  }
+
+  @Post("refreshToken")
+  @ApiOkResponse({
+    description: "The access token has been successfully refreshed",
+    type: UserJWTReturnDto,
+  })
+  @ApiBadRequestResponse({
+    description: "Missing refresh token or user is not logged",
+  })
+  @ApiUnauthorizedResponse({
+    description: "User is unauthenticated",
+  })
+  async refreshToken(
+    @Req() req: Request,
+    @Res({ passthrough: true }) res: Response
+  ): Promise<UserJWTReturnDto> {
+    const refreshToken =
+      req.cookies.refreshToken || req.headers.authorization?.split(" ")[1];
+
+    if (!refreshToken) {
+      throw new BadRequestException("Missing refresh token or user not logged");
+    }
+
+    const tokenPayload = await this.authService.decodeJWTToken(refreshToken);
+    if (!tokenPayload.isAuthenticated) {
+      throw new UnauthorizedException("User is not authenticated");
+    }
+
+    const user = await this.authService.getUserById(tokenPayload.id);
+    const response = await this.authService.generateAccessToken(
+      user,
+      !tokenPayload.isAuthenticated
+    );
+
+    res.cookie("accessToken", response, {
+      httpOnly: true,
+      maxAge:
+        (this.configService.get("JWT_ACCESS_TOKEN_EXPIRES_IN") ||
+          JWT_ACCESS_TOKEN_EXPIRES_IN) * 1000,
+    });
+
+    return {
+      tokens: {
+        accessToken: response,
+        refreshToken,
+        requiresTwoFaAuthentication: false,
+      },
+
+      id: user.id,
+      login: user.login,
+      email: user.email,
+    };
   }
 
   @Get("me")

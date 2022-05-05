@@ -22,6 +22,7 @@ import {
   UserLoginDto,
   UserRegisterDto,
 } from "./dto/user.dto";
+import { TwoFaService } from "./twoFa.service";
 
 @Injectable()
 export class AuthService {
@@ -29,7 +30,8 @@ export class AuthService {
     private prismaService: PrismaService,
     private logger: Logger,
     private jwt: JwtService,
-    private config: ConfigService
+    private config: ConfigService,
+    private twoFaService: TwoFaService
   ) {}
 
   async register(user: UserRegisterDto): Promise<UserJWTReturnDto> {
@@ -57,14 +59,17 @@ export class AuthService {
         password: passwordHash,
       },
     });
+
+    const tokens = await this.generateTokens(createdUser, true);
+
     this.logger.log(`A new user ${createdUser.login} has been created`, "Auth");
     return {
       id: createdUser.id,
       email: createdUser.email,
       login: createdUser.login,
       tokens: {
-        accessToken: "",
-        refreshToken: "",
+        ...tokens,
+        ...{ requiresTwoFaAuthentication: false },
       },
     };
   }
@@ -97,8 +102,7 @@ export class AuthService {
       throw new ForbiddenException(`Password is incorrect`);
     }
 
-    //TODO: If user has 2FA enabled, send unauthenticated token
-    const tokens = await this.generateTokens(foundUser);
+    const tokens = await this.generateTokens(foundUser, !foundUser.twoFaSecret);
 
     this.logger.log(`User ${user.login} has been logged in`, "Auth");
 
@@ -106,16 +110,26 @@ export class AuthService {
       id: foundUser.id,
       email: foundUser.email,
       login: foundUser.login,
-      tokens,
+      tokens: {
+        ...tokens,
+        ...{ requiresTwoFaAuthentication: !!foundUser.twoFaSecret },
+      },
     };
   }
 
   async generateTokens(
-    user: User
+    user: User,
+    isAuthenticated?: boolean
   ): Promise<{ accessToken: string; refreshToken: string }> {
+    const accessToken = await this.generateAccessToken(user, !isAuthenticated);
+
+    let refreshToken;
+    if (!!isAuthenticated) {
+      refreshToken = await this.generateRefreshToken(user);
+    }
     return {
-      accessToken: await this.generateAccessToken(user),
-      refreshToken: await this.generateRefreshToken(user),
+      accessToken,
+      refreshToken,
     };
   }
 
@@ -237,5 +251,55 @@ export class AuthService {
     }
 
     return user;
+  }
+
+  async decodeJWTToken(token: string): Promise<JWTPayload> {
+    const tokenData: JWTPayload = this.jwt.decode(token) as JWTPayload;
+    return tokenData;
+  }
+
+  async authorizeWith2FA(
+    code: string,
+    accessToken: string
+  ): Promise<UserJWTReturnDto> {
+    //Decode the JWT token
+    const decoded = await this.decodeJWTToken(accessToken);
+
+    //Check if the user has already been authenticated
+    if (decoded.isAuthenticated) {
+      throw new ConflictException("User has already been authenticated");
+    }
+
+    //Find the user
+    const user = await this.getUserById(decoded.id);
+
+    //Check if the user has enabled 2FA
+    if (!user.twoFaSecret) {
+      throw new ConflictException("2FA is not enabled");
+    }
+
+    //Check if the code is correct
+    const isValid: boolean = await this.twoFaService.validate2FACode(
+      user,
+      code
+    );
+
+    if (!isValid) {
+      throw new ForbiddenException("2FA code is incorrect");
+    }
+
+    //Generate new tokens
+    const tokens = await this.generateTokens(user, true);
+
+    //Return the tokens
+    return {
+      id: user.id,
+      email: user.email,
+      login: user.login,
+      tokens: {
+        ...tokens,
+        ...{ requiresTwoFaAuthentication: false },
+      },
+    };
   }
 }

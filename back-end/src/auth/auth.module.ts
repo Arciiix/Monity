@@ -6,6 +6,7 @@ import { JwtModule } from "@nestjs/jwt";
 import { ConfigModule } from "@nestjs/config";
 import { PassportModule } from "@nestjs/passport";
 import { JWTStrategy } from "./auth.strategy";
+import { TwoFaService } from "./twoFa.service";
 
 @Module({
   imports: [
@@ -19,7 +20,7 @@ import { JWTStrategy } from "./auth.strategy";
       signOptions: { expiresIn: process.env.JWT_ACCESS_TOKEN_EXPIRES_IN },
     }),
   ],
-  providers: [AuthService, Logger, JWTStrategy],
+  providers: [AuthService, Logger, JWTStrategy, TwoFaService],
   controllers: [AuthController],
 })
 export class AuthModule {}

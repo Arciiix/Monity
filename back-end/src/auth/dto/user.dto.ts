@@ -69,6 +69,7 @@ class UserJWTReturnDto extends UserReturnDto {
   tokens: {
     accessToken: string;
     refreshToken: string;
+    requiresTwoFaAuthentication: boolean;
   };
 }
 
