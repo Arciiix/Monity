@@ -12,4 +12,15 @@ model User {
   login    String
   email    String
   password String
+
+  refreshTokens RefreshToken[]
+}
+
+model RefreshToken {
+  id        String   @id @default(cuid())
+  token     String
+  userId    String
+  createdAt DateTime @default(now())
+
+  User User @relation(fields: [userId], references: [id])
 }

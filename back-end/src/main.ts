@@ -4,6 +4,7 @@ import { NestFactory } from "@nestjs/core";
 import { DocumentBuilder, SwaggerModule } from "@nestjs/swagger";
 import { AppModule } from "./app.module";
 import { PORT } from "./defaultConfig";
+import * as cookieParser from "cookie-parser";
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -12,11 +13,15 @@ async function bootstrap() {
   const apiDocsConfig = new DocumentBuilder()
     .setTitle("Monity")
     .setDescription("Description of the Monity REST API")
+    .addBearerAuth()
+    .addCookieAuth("accessToken")
     .build();
   const apiDocsDocument = SwaggerModule.createDocument(app, apiDocsConfig);
   SwaggerModule.setup("docs", app, apiDocsDocument);
 
   const logger = new Logger();
+
+  app.use(cookieParser());
 
   app.useGlobalPipes(
     new ValidationPipe({

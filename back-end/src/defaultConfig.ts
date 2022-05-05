@@ -1,1 +1,4 @@
 export const PORT = 5321;
+export const JWT_ACCESS_TOKEN_EXPIRES_IN = 1800;
+export const JWT_REFRESH_TOKEN_EXPIRES_IN = 2592000;
+export const MAX_REFRESH_TOKENS_PER_USER = 10;

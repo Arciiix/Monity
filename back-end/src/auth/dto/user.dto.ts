@@ -58,4 +58,28 @@ class UserReturnDto {
   email: string;
 }
 
-export { UserRegisterDto, UserLoginDto, UserReturnDto };
+class Tokens {
+  @ApiProperty({ type: String, description: "access token" })
+  accessToken: string;
+  @ApiProperty({ type: String, description: "refresh token" })
+  refreshToken: string;
+}
+class UserJWTReturnDto extends UserReturnDto {
+  @ApiProperty({ type: Tokens, description: "jwt tokens" })
+  tokens: {
+    accessToken: string;
+    refreshToken: string;
+  };
+}
+
+class JWTPayload extends UserReturnDto {
+  isAuthenticated: boolean;
+}
+
+export {
+  UserRegisterDto,
+  UserLoginDto,
+  UserReturnDto,
+  UserJWTReturnDto,
+  JWTPayload,
+};
