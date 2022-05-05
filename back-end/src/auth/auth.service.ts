@@ -104,7 +104,7 @@ export class AuthService {
 
     const tokens = await this.generateTokens(foundUser, !foundUser.twoFaSecret);
 
-    this.logger.log(`User ${user.login} has been logged in`, "Auth");
+    this.logger.log(`User ${user.login} has logged in`, "Auth");
 
     return {
       id: foundUser.id,
@@ -143,6 +143,10 @@ export class AuthService {
       login: user.login,
       isAuthenticated: !isTemporary,
     };
+    this.logger.log(
+      `Generated ${isTemporary ? "temporary " : ""}access token`,
+      "Auth"
+    );
     return this.jwt.sign(userObj, {
       secret: this.config.get("JWT_ACCESS_TOKEN_SECRET"),
       expiresIn:
@@ -173,6 +177,10 @@ export class AuthService {
             createdAt: "asc",
           },
         });
+      this.logger.log(
+        `Maxiumum token amount exceeded for user ${user.login}; deleting oldest token`,
+        "Auth"
+      );
 
       await this.prismaService.refreshToken.delete({
         where: {
@@ -206,6 +214,7 @@ export class AuthService {
         },
       },
     });
+    this.logger.log(`Generated refresh token`, "Auth");
 
     return token;
   }
@@ -229,6 +238,8 @@ export class AuthService {
         }
       }
     }
+
+    this.logger.log(`User ${userId} has logged out`, "Auth");
 
     return {
       timestamp: new Date(),
@@ -267,6 +278,10 @@ export class AuthService {
 
     //Check if the user has already been authenticated
     if (decoded.isAuthenticated) {
+      this.logger.log(
+        `Tried to authenticate user ${decoded.login} but they are already authenticated`,
+        "Auth [2FA]"
+      );
       throw new ConflictException("User has already been authenticated");
     }
 
@@ -275,6 +290,10 @@ export class AuthService {
 
     //Check if the user has enabled 2FA
     if (!user.twoFaSecret) {
+      this.logger.log(
+        `Tried to authenticate user ${decoded.login} but the user has not enabled 2FA`,
+        "Auth [2FA]"
+      );
       throw new ConflictException("2FA is not enabled");
     }
 
@@ -285,6 +304,10 @@ export class AuthService {
     );
 
     if (!isValid) {
+      this.logger.log(
+        `Tried to authenticate user ${decoded.login} but the code is invalid`,
+        "Auth [2FA]"
+      );
       throw new ForbiddenException("2FA code is incorrect");
     }
 
