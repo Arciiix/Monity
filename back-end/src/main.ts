@@ -12,7 +12,9 @@ async function bootstrap() {
 
   const apiDocsConfig = new DocumentBuilder()
     .setTitle("Monity")
-    .setDescription("Description of the Monity REST API")
+    .setDescription(
+      "The REST API of Monity - personal finance manager, budget tracker, and analyzer that helps you monitor your money."
+    )
     .addBearerAuth()
     .addCookieAuth("accessToken")
     .build();
