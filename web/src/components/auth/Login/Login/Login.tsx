@@ -6,6 +6,8 @@ import {
   FormControlLabel,
   InputAdornment,
   IconButton,
+  useMediaQuery,
+  useTheme,
 } from "@mui/material";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
@@ -16,6 +18,7 @@ import isEmpty from "validator/lib/isEmpty";
 import styles from "./Login.module.css";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import LoadingOverlay from "../../../Loading/LoadingOverlay/LoadingOverlay";
+import TwoFaDialog from "../TwoFaDialog";
 
 interface ILoginProps {
   hideRegister?: boolean;
@@ -31,6 +34,11 @@ function Login(props: ILoginProps) {
   let [showPassword, setShowPassword] = useState(false);
 
   let [isLoading, setIsLoading] = useState(false);
+
+  const theme = useTheme();
+  const twoFaDialogFullScreen = useMediaQuery(theme.breakpoints.down("md"));
+
+  let [isTwoFaDialogOpen, setIsTwoFaDialogOpen] = useState(false);
 
   //Contains the error messages of the login form
   let [errors, setErrors] = useState<{
@@ -85,6 +93,10 @@ function Login(props: ILoginProps) {
 
     //DEV TODO: Ensure it runs only when user has successfully logged in
     localStorage.setItem("cachedLogin", login);
+
+    //TODO: If user has 2FA enabled, display the 2FA dialog
+
+    setIsTwoFaDialogOpen(true);
   };
 
   useEffect(() => {
@@ -107,6 +119,15 @@ function Login(props: ILoginProps) {
       p="15px"
     >
       <LoadingOverlay isLoading={isLoading} />
+      <TwoFaDialog
+        fullscreen={twoFaDialogFullScreen}
+        open={isTwoFaDialogOpen}
+        closeDialog={() => {
+          //DEV
+          setIsTwoFaDialogOpen(false);
+        }}
+        userLogin={"DEV TODO: Change it"} //DEV
+      />
       <h1>Login</h1>
       <Box width="100%" mb="5px">
         <TextField
