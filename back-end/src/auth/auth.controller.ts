@@ -123,6 +123,7 @@ export class AuthController {
   @Delete("logout")
   @ApiOkResponse({
     description: "User has been successfully logged out",
+    type: Timestamp,
   })
   @ApiForbiddenResponse({
     description: "User isn't authenticated",
@@ -259,6 +260,7 @@ export class AuthController {
   @Get("me")
   @ApiOkResponse({
     description: "Get the current user data",
+    type: UserReturnDto,
   })
   @ApiForbiddenResponse({
     description: "User isn't authenticated",
@@ -275,6 +277,7 @@ export class AuthController {
   @Get("/twoFaStatus")
   @ApiOkResponse({
     description: "Get the current user 2FA status",
+    type: TwoFaStatus,
   })
   @ApiUnauthorizedResponse({
     description: "User isn't authenticated",
