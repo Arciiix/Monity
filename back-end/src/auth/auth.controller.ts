@@ -1,12 +1,14 @@
 import {
   BadRequestException,
   Body,
+  ConflictException,
   Controller,
   Delete,
   Get,
   HttpCode,
   Param,
   Post,
+  Query,
   Req,
   Res,
   UnauthorizedException,
@@ -19,7 +21,9 @@ import {
   ApiForbiddenResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
+  ApiOperation,
   ApiParam,
+  ApiQuery,
   ApiTags,
   ApiUnauthorizedResponse,
 } from "@nestjs/swagger";
@@ -32,6 +36,7 @@ import {
 import { Timestamp } from "src/global.dto";
 import { Auth } from "./auth.decorator";
 import { AuthService } from "./auth.service";
+import { TwoFaDto, TwoFaStatus } from "./dto/twoFa.dto";
 
 import {
   UserJWTReturnDto,
@@ -39,12 +44,14 @@ import {
   UserRegisterDto,
   UserReturnDto,
 } from "./dto/user.dto";
+import { TwoFaService } from "./twoFa.service";
 
 @Controller("auth")
 @ApiTags("auth")
 export class AuthController {
   constructor(
     private authService: AuthService,
+    private twoFaService: TwoFaService,
     private configService: ConfigService
   ) {}
 
@@ -141,7 +148,11 @@ export class AuthController {
     }
   }
 
-  @Post("authWith2FA/:code")
+  @Post("authWithTwoFA/:code")
+  @ApiOperation({
+    description:
+      "When user has 2FA enabled and tries to log in, they need to provide the code - this endpoint will check if the code is correct and generate new, authenticated tokens",
+  })
   @ApiParam({
     description: "Two factor authentication code",
     name: "code",
@@ -190,6 +201,9 @@ export class AuthController {
   }
 
   @Post("refreshToken")
+  @ApiOperation({
+    description: "Refresh the access token by using the refresh token",
+  })
   @ApiOkResponse({
     description: "The access token has been successfully refreshed",
     type: UserJWTReturnDto,
@@ -256,5 +270,69 @@ export class AuthController {
       email: req.user.email,
       login: req.user.login,
     };
+  }
+
+  @Get("/twoFaStatus")
+  @ApiOkResponse({
+    description: "Get the current user 2FA status",
+  })
+  @ApiUnauthorizedResponse({
+    description: "User isn't authenticated",
+  })
+  @Auth()
+  async twoFaStatus(@Req() req): Promise<TwoFaStatus> {
+    return this.twoFaService.get2FAStatus(req.user);
+  }
+
+  @Post("toggleTwoFA/:isEnabled")
+  @ApiParam({
+    name: "isEnabled",
+    description: "Toggle 2FA",
+    type: Boolean,
+  })
+  @ApiQuery({
+    name: "code",
+    description: "Two factor authentication code (if toggling off)",
+    required: false,
+  })
+  @ApiOkResponse({
+    description: "Two factor authentication has been successfully toggled",
+  })
+  @ApiUnauthorizedResponse({
+    description: "User isn't authenticated",
+  })
+  @ApiForbiddenResponse({
+    description:
+      "User wants to turn off 2FA but didn't provide or provided the wrong 2FA code",
+  })
+  @Auth()
+  async toggle2FA(
+    @Req() req: Request,
+    @Param("isEnabled") isEnabled: boolean,
+    @Query("code") code?: string
+  ): Promise<(TwoFaDto & Timestamp) | Timestamp> {
+    return await this.twoFaService.toggle2FA(req.user as User, isEnabled, code);
+  }
+
+  @Get("/twoFaQrCode")
+  @ApiOkResponse({
+    description: "Get the QR code for 2FA",
+  })
+  @ApiConflictResponse({
+    description: "2FA not enabled",
+  })
+  @Auth()
+  async getTwoFaQrCode(@Req() req: Request, @Res() res: Response) {
+    const user = req.user as User;
+
+    if (user.twoFaSecret) {
+      return await this.twoFaService.pipeQrCodeStream(
+        res,
+        user.login,
+        user.twoFaSecret
+      );
+    } else {
+      throw new ConflictException("2FA is not enabled");
+    }
   }
 }

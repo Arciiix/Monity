@@ -13,7 +13,8 @@ model User {
   email    String
   password String
 
-  twoFaSecret String?
+  twoFaSecret       String?
+  twoFaRecoveryCode String?
 
   refreshTokens RefreshToken[]
 }
