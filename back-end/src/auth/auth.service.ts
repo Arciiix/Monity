@@ -4,6 +4,7 @@ import {
   Injectable,
   Logger,
   NotFoundException,
+  UnauthorizedException,
 } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { JwtService } from "@nestjs/jwt";
@@ -267,6 +268,49 @@ export class AuthService {
   async decodeJWTToken(token: string): Promise<JWTPayload> {
     const tokenData: JWTPayload = this.jwt.decode(token) as JWTPayload;
     return tokenData;
+  }
+
+  async refreshToken(refreshToken: string): Promise<UserJWTReturnDto> {
+    const tokenPayload = await this.decodeJWTToken(refreshToken);
+    if (!tokenPayload.isAuthenticated) {
+      throw new UnauthorizedException("User is not authenticated");
+    }
+
+    const user = await this.getUserById(tokenPayload.id);
+
+    //Check if the user has that refresh token
+    const userRefreshTokens = await this.prismaService.refreshToken.findMany({
+      where: {
+        userId: user.id,
+      },
+    });
+
+    let isRefreshTokenFound = false;
+    for await (const token of userRefreshTokens) {
+      if (await argon2.verify(token.token, refreshToken)) {
+        isRefreshTokenFound = true;
+        break;
+      }
+    }
+    if (!isRefreshTokenFound) {
+      throw new UnauthorizedException("User is not authenticated");
+    }
+
+    const response = await this.generateAccessToken(
+      user,
+      !tokenPayload.isAuthenticated
+    );
+    return {
+      tokens: {
+        accessToken: response,
+        refreshToken,
+        requiresTwoFaAuthentication: false,
+      },
+
+      id: user.id,
+      login: user.login,
+      email: user.email,
+    };
   }
 
   async authorizeWith2FA(

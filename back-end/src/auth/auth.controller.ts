@@ -226,16 +226,7 @@ export class AuthController {
       throw new BadRequestException("Missing refresh token or user not logged");
     }
 
-    const tokenPayload = await this.authService.decodeJWTToken(refreshToken);
-    if (!tokenPayload.isAuthenticated) {
-      throw new UnauthorizedException("User is not authenticated");
-    }
-
-    const user = await this.authService.getUserById(tokenPayload.id);
-    const response = await this.authService.generateAccessToken(
-      user,
-      !tokenPayload.isAuthenticated
-    );
+    const response = await this.authService.refreshToken(refreshToken);
 
     res.cookie("accessToken", response, {
       httpOnly: true,
@@ -244,17 +235,7 @@ export class AuthController {
           JWT_ACCESS_TOKEN_EXPIRES_IN) * 1000,
     });
 
-    return {
-      tokens: {
-        accessToken: response,
-        refreshToken,
-        requiresTwoFaAuthentication: false,
-      },
-
-      id: user.id,
-      login: user.login,
-      email: user.email,
-    };
+    return response;
   }
 
   @Get("me")
