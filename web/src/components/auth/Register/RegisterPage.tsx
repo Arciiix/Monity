@@ -9,17 +9,28 @@ import validator from "validator";
 import InputAdornment from "@mui/material/InputAdornment";
 import IconButton from "@mui/material/IconButton";
 import { VisibilityOff, Visibility } from "@mui/icons-material";
+import { IUserRegisterDto } from "../types/user.interface";
+import MaterialLink from "@mui/material/Link";
+import { Link } from "react-router-dom";
+import axios, { AxiosError } from "axios";
+import { useRecoilState } from "recoil";
+import dialogStackState from "../../InfoDialog/atoms/dialogStack.atom";
+import validationErrorsToString from "../../utils/validationErrorsToString";
+import InfoDialogTypes from "../../InfoDialog/types/infoDialogTypes.enum";
+import addToInfoDialogs from "../../utils/addToInfoDialogs";
 
 function RegisterPage() {
-  let [login, setLogin] = useState("");
-  let [password, setPassword] = useState("");
-  let [passwordConfirm, setPasswordConfirm] = useState("");
-  let [email, setEmail] = useState("");
+  const [infoDialogs, setInfoDialogs] = useRecoilState(dialogStackState);
 
-  let [showPassword, setShowPassword] = useState(false);
-  let [showPasswordConfirm, setShowPasswordConfirm] = useState(false);
+  const [login, setLogin] = useState("");
+  const [password, setPassword] = useState("");
+  const [passwordConfirm, setPasswordConfirm] = useState("");
+  const [email, setEmail] = useState("");
 
-  let [errors, setErrors] = useState<{
+  const [showPassword, setShowPassword] = useState(false);
+  const [showPasswordConfirm, setShowPasswordConfirm] = useState(false);
+
+  const [errors, setErrors] = useState<{
     login: string;
     password: string;
     passwordConfirm: string;
@@ -31,7 +42,7 @@ function RegisterPage() {
     email: "",
   });
 
-  let [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleClickShowPassword = (isConfirm: boolean) => {
     if (isConfirm) {
@@ -131,7 +142,69 @@ function RegisterPage() {
 
     setIsLoading(true);
 
-    //TODO: Register
+    const registerObj: IUserRegisterDto = {
+      email,
+      login,
+      password,
+    };
+
+    try {
+      const registerRequest = await axios.post(
+        "/v1/auth/register",
+        registerObj
+      );
+
+      //TODO: Store the user data and redirect to the homepage
+    } catch (err: any | AxiosError) {
+      if (axios.isAxiosError(err) && err.response) {
+        err = err as AxiosError;
+        switch (err.response.status) {
+          case 400:
+            let errors: any = err.response?.data?.errors;
+            let errorsString = "unknown";
+            if (errors) {
+              errorsString = validationErrorsToString(errors);
+            }
+            addToInfoDialogs(
+              {
+                title: "Validation error(s)",
+                message:
+                  "The following validation errors has occured: " +
+                  errorsString,
+                type: InfoDialogTypes.error,
+              },
+              infoDialogs,
+              setInfoDialogs
+            );
+            console.error("Validation errors", errorsString);
+            break;
+          case 409:
+            addToInfoDialogs(
+              {
+                title: "User already exists",
+                message: `User with login ${login} or email ${email} already exists!`,
+                type: InfoDialogTypes.error,
+              },
+              infoDialogs,
+              setInfoDialogs
+            );
+            console.error(`User ${login} or ${email} already exists`);
+            break;
+          default:
+            addToInfoDialogs(
+              {
+                title: "Unknown error",
+                message: `Unknown server-side error has occured :(`,
+                type: InfoDialogTypes.error,
+              },
+              infoDialogs,
+              setInfoDialogs
+            );
+            console.error("Unknown error", err);
+        }
+        setIsLoading(false);
+      }
+    }
   };
 
   return (
@@ -147,6 +220,9 @@ function RegisterPage() {
       >
         <Logo logoHeight={"150px"} />
         <h1>Register</h1>
+        <MaterialLink component={Link} to="/auth/login">
+          Already having an account?
+        </MaterialLink>
 
         <FormControl>
           <TextField
