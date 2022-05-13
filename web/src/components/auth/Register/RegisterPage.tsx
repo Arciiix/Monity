@@ -11,16 +11,21 @@ import IconButton from "@mui/material/IconButton";
 import { VisibilityOff, Visibility } from "@mui/icons-material";
 import { IUserRegisterDto } from "../types/user.interface";
 import MaterialLink from "@mui/material/Link";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import axios, { AxiosError } from "axios";
-import { useRecoilState } from "recoil";
+import { useRecoilState, useSetRecoilState } from "recoil";
 import dialogStackState from "../../InfoDialog/atoms/dialogStack.atom";
 import validationErrorsToString from "../../utils/validationErrorsToString";
 import InfoDialogTypes from "../../InfoDialog/types/infoDialogTypes.enum";
 import addToInfoDialogs from "../../utils/addToInfoDialogs";
+import userState from "../atoms/user.atom";
+import displayUnknownErrorDialog from "../../utils/unknownErrorDialog";
 
 function RegisterPage() {
   const [infoDialogs, setInfoDialogs] = useRecoilState(dialogStackState);
+  const setUser = useSetRecoilState(userState);
+
+  const navigate = useNavigate();
 
   const [login, setLogin] = useState("");
   const [password, setPassword] = useState("");
@@ -154,7 +159,22 @@ function RegisterPage() {
         registerObj
       );
 
-      //TODO: Store the user data and redirect to the homepage
+      if (
+        !registerRequest?.data?.id ||
+        !registerRequest?.data?.login ||
+        !registerRequest?.data?.email
+      ) {
+        return displayUnknownErrorDialog(infoDialogs, setInfoDialogs);
+      }
+
+      //Store the user data and redirect to the homepage
+      setUser({
+        id: registerRequest.data.id,
+        login: registerRequest.data.login,
+        email: registerRequest.data.email,
+      });
+
+      navigate("/app");
     } catch (err: any | AxiosError) {
       if (axios.isAxiosError(err) && err.response) {
         err = err as AxiosError;
@@ -191,15 +211,7 @@ function RegisterPage() {
             console.error(`User ${login} or ${email} already exists`);
             break;
           default:
-            addToInfoDialogs(
-              {
-                title: "Unknown error",
-                message: `Unknown server-side error has occured :(`,
-                type: InfoDialogTypes.error,
-              },
-              infoDialogs,
-              setInfoDialogs
-            );
+            displayUnknownErrorDialog(infoDialogs, setInfoDialogs);
             console.error("Unknown error", err);
         }
         setIsLoading(false);

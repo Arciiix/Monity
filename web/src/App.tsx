@@ -1,8 +1,13 @@
 import { createTheme, CssBaseline, ThemeProvider } from "@mui/material";
+import { useEffect } from "react";
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
-import { RecoilRoot } from "recoil";
+import { RecoilRoot, useRecoilValue, useSetRecoilState } from "recoil";
+import userState from "./components/auth/atoms/user.atom";
 import LoginPage from "./components/auth/Login/LoginPage";
 import RegisterPage from "./components/auth/Register/RegisterPage";
+import NoAuthentication from "./components/auth/routerUtils/NoAuthentication";
+import RequireAuth from "./components/auth/routerUtils/RequireAuth";
+import Dashboard from "./components/dashboard/Dashboard";
 import InfoDialog from "./components/InfoDialog/InfoDialog";
 
 const darkTheme = createTheme({
@@ -20,10 +25,13 @@ function App() {
           <InfoDialog />
           <BrowserRouter>
             <Routes>
-              <Route path="/" element={<Navigate to="/auth/login" />} />
-              <Route path="auth">
+              <Route path="/" element={<Navigate to="/app" />} />
+              <Route path="auth" element={<NoAuthentication />}>
                 <Route path="login" element={<LoginPage />} />
                 <Route path="register" element={<RegisterPage />} />
+              </Route>
+              <Route path="app" element={<RequireAuth />}>
+                <Route path="" element={<Dashboard />} />
               </Route>
             </Routes>
           </BrowserRouter>
