@@ -7,6 +7,7 @@ interface IUser {
 interface IUserLoginDto {
   login: string;
   password: string;
+  twoFaCode?: string;
 }
 interface IUserRegisterDto {
   email: string;

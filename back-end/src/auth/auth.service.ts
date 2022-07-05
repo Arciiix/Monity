@@ -267,7 +267,7 @@ export class AuthService {
     return tokenData;
   }
 
-  async refreshToken(refreshToken: string): Promise<UserJWTReturnDto> {
+  async refreshToken(refreshToken: string, res: Response): Promise<Tokens> {
     const tokenPayload = await this.decodeJWTToken(refreshToken);
     const user = await this.getUserById(tokenPayload.id);
 
@@ -289,16 +289,7 @@ export class AuthService {
       throw new UnauthorizedException("User is not authenticated");
     }
 
-    const response = await this.generateAccessToken(user);
-    return {
-      tokens: {
-        accessToken: response,
-        refreshToken,
-      },
-      id: user.id,
-      login: user.login,
-      email: user.email,
-    };
+    return await this.generateTokens(user, res);
   }
 
   async authorizeWith2FA(user: User, code: string): Promise<UserReturnDto> {
@@ -322,7 +313,7 @@ export class AuthService {
         `Tried to authenticate user ${user.login} but the code is invalid`,
         "Auth [2FA]"
       );
-      throw new ForbiddenException("2FA code is incorrect");
+      throw new UnauthorizedException("2FA code is incorrect");
     }
 
     //Return the tokens

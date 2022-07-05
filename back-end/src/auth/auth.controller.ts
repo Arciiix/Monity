@@ -128,7 +128,6 @@ export class AuthController {
   @ApiUnauthorizedResponse({
     description: "User is unauthorized",
   })
-  @Auth()
   async refreshToken(
     @Req() req: RequestWithUser,
     @Res({ passthrough: true }) res: Response
@@ -141,7 +140,7 @@ export class AuthController {
     }
 
     //Get tokens
-    return await this.authService.generateTokens(req.user, res);
+    return await this.authService.refreshToken(refreshToken, res);
   }
 
   @Get("me")

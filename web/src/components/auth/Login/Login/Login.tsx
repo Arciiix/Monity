@@ -12,13 +12,21 @@ import {
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import TextField from "@mui/material/TextField";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import isEmpty from "validator/lib/isEmpty";
 
 import styles from "./Login.module.css";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import LoadingOverlay from "../../../Loading/LoadingOverlay/LoadingOverlay";
 import TwoFaDialog from "../TwoFaDialog";
+import axios from "axios";
+import { AxiosErr, isAxiosErr } from "../../../utils/axios";
+import { IUser, IUserLoginDto } from "../../../../types/user/user.interface";
+import { useRecoilState } from "recoil";
+import userState from "../../../../atoms/user/user.atom";
+import useInfoDialog from "../../../hooks/useInfoDialog";
+import InfoDialogTypes from "../../../../types/infoDialog/infoDialogTypes.enum";
+import { toast } from "react-toastify";
 
 interface ILoginProps {
   hideRegister?: boolean;
@@ -27,6 +35,9 @@ interface ILoginProps {
 }
 
 function Login(props: ILoginProps) {
+  const navigate = useNavigate();
+  const { addToInfoDialogs, displayUnknownErrorDialog } = useInfoDialog();
+
   let [login, setLogin] = useState("");
   let [password, setPassword] = useState("");
   let [rememberMe, setRememberMe] = useState(false);
@@ -39,6 +50,8 @@ function Login(props: ILoginProps) {
   const twoFaDialogFullScreen = useMediaQuery(theme.breakpoints.down("md"));
 
   let [isTwoFaDialogOpen, setIsTwoFaDialogOpen] = useState(false);
+
+  let [user, setUser] = useRecoilState(userState);
 
   //Contains the error messages of the login form
   let [errors, setErrors] = useState<{
@@ -59,7 +72,7 @@ function Login(props: ILoginProps) {
     event.preventDefault();
   };
 
-  const signIn = async () => {
+  const handleSignIn = async (code?: string) => {
     let isThereAnyError = false;
     let errorObj = { ...errors };
 
@@ -85,18 +98,75 @@ function Login(props: ILoginProps) {
     }
 
     setIsLoading(true);
-
-    //TODO: Log in
+    let signInResponse: IUser | null = await signIn(login, password, code);
+    if (!signInResponse) return;
 
     // If user has successfully logged in and the remember me checkbox is checked,
     // then save the login in the local storage
+    if (rememberMe) {
+      localStorage.setItem("cachedLogin", login);
+    }
+    setUser(signInResponse);
+    toast(`👋 Hi, ${signInResponse.login}!`, {
+      toastId: "welcome_toast",
+    });
+    navigate("/app");
+  };
 
-    //DEV TODO: Ensure it runs only when user has successfully logged in
-    localStorage.setItem("cachedLogin", login);
+  const signIn = async (
+    login: string,
+    password: string,
+    twoFaCode?: string
+  ): Promise<IUser | null> => {
+    try {
+      const request = await axios.post("/v1/auth/login", {
+        login,
+        password,
+        twoFaCode,
+      } as IUserLoginDto);
 
-    //TODO: If user has 2FA enabled, display the 2FA dialog
+      return request.data as IUser;
+    } catch (err: AxiosErr) {
+      const error = isAxiosErr(err);
+      if (error) {
+        switch (error.statusCode) {
+          case 403:
+            //Wrong password
+            setErrors({
+              login: "",
+              password: "Wrong password",
+            });
+            setIsLoading(false);
+            break;
+          case 404:
+            //Not found
+            setErrors({
+              login: "Wrong login",
+              password: "",
+            });
+            setIsLoading(false);
+            break;
+          case 401:
+            if (isTwoFaDialogOpen) {
+              addToInfoDialogs({
+                title: "2FA code",
+                message: "The 2FA code you entered is invalid",
+                type: InfoDialogTypes.error,
+              });
+            }
+            setIsTwoFaDialogOpen(true);
+            break;
+          default:
+            console.error(error);
+            displayUnknownErrorDialog();
+        }
+      } else {
+        console.error(error);
+        displayUnknownErrorDialog();
+      }
 
-    setIsTwoFaDialogOpen(true);
+      return null;
+    }
   };
 
   useEffect(() => {
@@ -122,11 +192,13 @@ function Login(props: ILoginProps) {
       <TwoFaDialog
         fullscreen={twoFaDialogFullScreen}
         open={isTwoFaDialogOpen}
-        closeDialog={() => {
-          //DEV
-          setIsTwoFaDialogOpen(false);
+        handleLogin={async (code: string) => {
+          await handleSignIn(code);
         }}
-        userLogin={"DEV TODO: Change it"} //DEV
+        closeDialog={() => {
+          setIsTwoFaDialogOpen(false);
+          setIsLoading(false);
+        }}
       />
       <h1>Login</h1>
       <Box width="100%" mb="5px">
@@ -166,7 +238,7 @@ function Login(props: ILoginProps) {
 
       <Button
         className={styles.submit}
-        onClick={signIn}
+        onClick={() => handleSignIn()}
         fullWidth
         variant="outlined"
       >

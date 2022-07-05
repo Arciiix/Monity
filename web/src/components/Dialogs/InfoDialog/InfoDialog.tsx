@@ -9,11 +9,17 @@ import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
 
 import { useRecoilState } from "recoil";
-import dialogStackState from "./atoms/dialogStack.atom";
+import dialogStackState from "../../../atoms/infoDialog/dialogStack.atom";
 import Box from "@mui/material/Box";
-import InfoDialogTypes from "./types/infoDialogTypes.enum";
+import InfoDialogTypes from "../../../types/infoDialog/infoDialogTypes.enum";
 import { ReactElement, useEffect, useState } from "react";
-import IInfoDialogData from "./types/infoDialogData.interface";
+import IInfoDialogData from "../../../types/infoDialog/infoDialogData.interface";
+
+interface IInfoDialog {
+  open: boolean;
+  description: string;
+  onClose: () => void;
+}
 
 function InfoDialog() {
   const [stack, setStack] = useRecoilState(dialogStackState);

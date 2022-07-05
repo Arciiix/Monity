@@ -9,28 +9,32 @@ import validator from "validator";
 import InputAdornment from "@mui/material/InputAdornment";
 import IconButton from "@mui/material/IconButton";
 import { VisibilityOff, Visibility } from "@mui/icons-material";
-import { IUserRegisterDto } from "../types/user.interface";
+import { IUserRegisterDto } from "../../../types/user/user.interface";
 import MaterialLink from "@mui/material/Link";
 import { Link, useNavigate } from "react-router-dom";
 import axios, { AxiosError } from "axios";
 import { useRecoilState, useSetRecoilState } from "recoil";
-import dialogStackState from "../../InfoDialog/atoms/dialogStack.atom";
+import dialogStackState from "../../../atoms/infoDialog/dialogStack.atom";
 import validationErrorsToString from "../../utils/validationErrorsToString";
-import InfoDialogTypes from "../../InfoDialog/types/infoDialogTypes.enum";
-import addToInfoDialogs from "../../utils/addToInfoDialogs";
-import userState from "../atoms/user.atom";
-import displayUnknownErrorDialog from "../../utils/unknownErrorDialog";
+import InfoDialogTypes from "../../../types/infoDialog/infoDialogTypes.enum";
+import userState from "../../../atoms/user/user.atom";
+import FormControlLabel from "@mui/material/FormControlLabel";
+import Checkbox from "@mui/material/Checkbox";
+import { AxiosErr, isAxiosErr } from "../../utils/axios";
+import useInfoDialog from "../../hooks/useInfoDialog";
+import { toast } from "react-toastify";
 
 function RegisterPage() {
-  const [infoDialogs, setInfoDialogs] = useRecoilState(dialogStackState);
   const setUser = useSetRecoilState(userState);
 
   const navigate = useNavigate();
+  const { addToInfoDialogs, displayUnknownErrorDialog } = useInfoDialog();
 
   const [login, setLogin] = useState("");
   const [password, setPassword] = useState("");
   const [passwordConfirm, setPasswordConfirm] = useState("");
   const [email, setEmail] = useState("");
+  const [rememberMe, setRememberMe] = useState(false);
 
   const [showPassword, setShowPassword] = useState(false);
   const [showPasswordConfirm, setShowPasswordConfirm] = useState(false);
@@ -164,7 +168,7 @@ function RegisterPage() {
         !registerRequest?.data?.login ||
         !registerRequest?.data?.email
       ) {
-        return displayUnknownErrorDialog(infoDialogs, setInfoDialogs);
+        return displayUnknownErrorDialog();
       }
 
       //Store the user data and redirect to the homepage
@@ -173,10 +177,15 @@ function RegisterPage() {
         login: registerRequest.data.login,
         email: registerRequest.data.email,
       });
-
+      if (rememberMe) {
+        localStorage.setItem("cachedLogin", login);
+      }
+      toast(`👋 Hi, ${registerRequest.data.login}!`, {
+        toastId: "welcome_toast",
+      });
       navigate("/app");
-    } catch (err: any | AxiosError) {
-      if (axios.isAxiosError(err) && err.response) {
+    } catch (err: AxiosErr) {
+      if (isAxiosErr(err)) {
         err = err as AxiosError;
         switch (err.response.status) {
           case 400:
@@ -185,33 +194,24 @@ function RegisterPage() {
             if (errors) {
               errorsString = validationErrorsToString(errors);
             }
-            addToInfoDialogs(
-              {
-                title: "Validation error(s)",
-                message:
-                  "The following validation errors has occured: " +
-                  errorsString,
-                type: InfoDialogTypes.error,
-              },
-              infoDialogs,
-              setInfoDialogs
-            );
+            addToInfoDialogs({
+              title: "Validation error(s)",
+              message:
+                "The following validation errors has occured: " + errorsString,
+              type: InfoDialogTypes.error,
+            });
             console.error("Validation errors", errorsString);
             break;
           case 409:
-            addToInfoDialogs(
-              {
-                title: "User already exists",
-                message: `User with login ${login} or email ${email} already exists!`,
-                type: InfoDialogTypes.error,
-              },
-              infoDialogs,
-              setInfoDialogs
-            );
+            addToInfoDialogs({
+              title: "User already exists",
+              message: `User with login ${login} or email ${email} already exists!`,
+              type: InfoDialogTypes.error,
+            });
             console.error(`User ${login} or ${email} already exists`);
             break;
           default:
-            displayUnknownErrorDialog(infoDialogs, setInfoDialogs);
+            displayUnknownErrorDialog();
             console.error("Unknown error", err);
         }
         setIsLoading(false);
@@ -312,6 +312,16 @@ function RegisterPage() {
             placeholder="you@example.com"
             error={!!errors.email} //Convert string to boolean
             helperText={errors.email || "Your email address"}
+          />
+
+          <FormControlLabel
+            label="Remember me"
+            control={
+              <Checkbox
+                value={rememberMe}
+                onChange={(e) => setRememberMe(e.target.checked)}
+              />
+            }
           />
 
           <Box my="20px">
