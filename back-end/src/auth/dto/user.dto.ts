@@ -2,6 +2,7 @@ import { ApiProperty } from "@nestjs/swagger";
 import {
   IsAlphanumeric,
   IsEmail,
+  IsOptional,
   IsString,
   Length,
   Matches,
@@ -45,6 +46,16 @@ class UserLoginDto {
   })
   @IsString()
   password: string;
+
+  @ApiProperty({
+    type: String,
+    description: "twoFaCode",
+    example: "123456",
+    required: false,
+  })
+  @IsString()
+  @IsOptional()
+  twoFaCode: string;
 }
 
 class UserReturnDto {
@@ -69,18 +80,16 @@ class UserJWTReturnDto extends UserReturnDto {
   tokens: {
     accessToken: string;
     refreshToken: string;
-    requiresTwoFaAuthentication: boolean;
   };
 }
 
-class JWTPayload extends UserReturnDto {
-  isAuthenticated: boolean;
-}
+class JWTPayload extends UserReturnDto {}
 
 export {
   UserRegisterDto,
   UserLoginDto,
   UserReturnDto,
   UserJWTReturnDto,
+  Tokens,
   JWTPayload,
 };

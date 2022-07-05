@@ -6,9 +6,16 @@ import { PrismaService } from "./prisma/prisma.service";
 import { AuthModule } from "./auth/auth.module";
 import { PrismaModule } from "./prisma/prisma.module";
 import { AppLoggerMiddleware } from "./app-logger.middleware";
+import configuration from "./configuration";
 
 @Module({
-  imports: [ConfigModule.forRoot(), AuthModule, PrismaModule],
+  imports: [
+    ConfigModule.forRoot({
+      load: [configuration],
+    }),
+    AuthModule,
+    PrismaModule,
+  ],
   controllers: [AppController],
   providers: [AppService, PrismaService, Logger],
 })

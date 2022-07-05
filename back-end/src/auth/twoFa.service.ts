@@ -95,7 +95,7 @@ export class TwoFaService {
     const secret = await authenticator.generateSecret();
     const recoveryCode = crypto.randomBytes(16).toString("hex");
     const otpauthUrl = authenticator.keyuri(user.login, "Monity", secret);
-
+    this.logger.log(`Generated new 2FA secret`);
     await this.prismaService.user.update({
       where: {
         id: user.id,

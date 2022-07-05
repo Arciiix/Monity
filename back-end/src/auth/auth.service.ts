@@ -10,18 +10,16 @@ import { ConfigService } from "@nestjs/config";
 import { JwtService } from "@nestjs/jwt";
 import { User } from "@prisma/client";
 import * as argon2 from "argon2";
-import {
-  JWT_ACCESS_TOKEN_EXPIRES_IN,
-  JWT_REFRESH_TOKEN_EXPIRES_IN,
-  MAX_REFRESH_TOKENS_PER_USER,
-} from "src/defaultConfig";
+import { Response } from "express";
 import { Timestamp } from "src/global.dto";
 import { PrismaService } from "src/prisma/prisma.service";
 import {
   JWTPayload,
+  Tokens,
   UserJWTReturnDto,
   UserLoginDto,
   UserRegisterDto,
+  UserReturnDto,
 } from "./dto/user.dto";
 import { TwoFaService } from "./twoFa.service";
 
@@ -35,7 +33,10 @@ export class AuthService {
     private twoFaService: TwoFaService
   ) {}
 
-  async register(user: UserRegisterDto): Promise<UserJWTReturnDto> {
+  async register(
+    user: UserRegisterDto,
+    res: Response
+  ): Promise<UserJWTReturnDto> {
     //Check if the user already exists
     const userExists = await this.prismaService.user.findFirst({
       where: {
@@ -61,21 +62,18 @@ export class AuthService {
       },
     });
 
-    const tokens = await this.generateTokens(createdUser, true);
+    const tokens = await this.generateTokens(createdUser, res);
 
     this.logger.log(`A new user ${createdUser.login} has been created`, "Auth");
     return {
       id: createdUser.id,
       email: createdUser.email,
       login: createdUser.login,
-      tokens: {
-        ...tokens,
-        ...{ requiresTwoFaAuthentication: false },
-      },
+      tokens,
     };
   }
 
-  async login(user: UserLoginDto): Promise<UserJWTReturnDto> {
+  async login(user: UserLoginDto, res: Response): Promise<UserJWTReturnDto> {
     const foundUser = await this.prismaService.user.findFirst({
       where: {
         OR: [{ login: user.login }, { email: user.login }],
@@ -103,7 +101,19 @@ export class AuthService {
       throw new ForbiddenException(`Password is incorrect`);
     }
 
-    const tokens = await this.generateTokens(foundUser, !foundUser.twoFaSecret);
+    if (foundUser.twoFaSecret) {
+      if (!user.twoFaCode) {
+        this.logger.log(
+          `Tried to login user ${user.login} but didn't provide 2FA code`,
+          "Auth"
+        );
+        throw new UnauthorizedException("Missing 2FA code");
+      } else {
+        await this.authorizeWith2FA(foundUser, user.twoFaCode);
+      }
+    }
+
+    const tokens = await this.generateTokens(foundUser, res);
 
     this.logger.log(`User ${user.login} has logged in`, "Auth");
 
@@ -111,48 +121,41 @@ export class AuthService {
       id: foundUser.id,
       email: foundUser.email,
       login: foundUser.login,
-      tokens: {
-        ...tokens,
-        ...{ requiresTwoFaAuthentication: !!foundUser.twoFaSecret },
-      },
+      tokens,
     };
   }
 
-  async generateTokens(
-    user: User,
-    isAuthenticated?: boolean
-  ): Promise<{ accessToken: string; refreshToken: string }> {
-    const accessToken = await this.generateAccessToken(user, !isAuthenticated);
+  async generateTokens(user: User, res: Response): Promise<Tokens> {
+    const accessToken = await this.generateAccessToken(user);
+    const refreshToken = await this.generateRefreshToken(user);
+    this.logger.log(`Generated new tokens for ${user.login}`, "Auth");
 
-    let refreshToken;
-    if (!!isAuthenticated) {
-      refreshToken = await this.generateRefreshToken(user);
-    }
+    res.cookie("accessToken", accessToken, {
+      httpOnly: true,
+      maxAge: this.config.get("JWT_ACCESS_TOKEN_EXPIRES_IN") * 1000,
+    });
+
+    res.cookie("refreshToken", refreshToken, {
+      httpOnly: true,
+      maxAge: this.config.get("JWT_REFRESH_TOKEN_EXPIRES_IN") * 1000,
+      path: `/${this.config.get("API_VERSION")}/auth`,
+    });
+
     return {
       accessToken,
       refreshToken,
     };
   }
 
-  async generateAccessToken(
-    user: User,
-    isTemporary?: boolean
-  ): Promise<string> {
+  async generateAccessToken(user: User): Promise<string> {
     const userObj: JWTPayload = {
       id: user.id,
       email: user.email,
       login: user.login,
-      isAuthenticated: !isTemporary,
     };
-    this.logger.log(
-      `Generated ${isTemporary ? "temporary " : ""}access token`,
-      "Auth"
-    );
     return this.jwt.sign(userObj, {
       secret: this.config.get("JWT_ACCESS_TOKEN_SECRET"),
-      expiresIn:
-        this.config.get("JWT_ACCESS_TOKEN_EXPIRES_IN") ||
-        JWT_ACCESS_TOKEN_EXPIRES_IN,
+      expiresIn: this.config.get("JWT_ACCESS_TOKEN_EXPIRES_IN"),
     });
   }
 
@@ -164,11 +167,7 @@ export class AuthService {
       },
     });
 
-    if (
-      userRefreshTokens >=
-      (this.config.get("MAX_REFRESH_TOKENS_PER_USER") ||
-        MAX_REFRESH_TOKENS_PER_USER)
-    ) {
+    if (userRefreshTokens >= this.config.get("MAX_REFRESH_TOKENS_PER_USER")) {
       const oldestRefreshToken =
         await this.prismaService.refreshToken.findFirst({
           where: {
@@ -194,14 +193,11 @@ export class AuthService {
       id: user.id,
       email: user.email,
       login: user.login,
-      isAuthenticated: true,
     };
 
     const token = this.jwt.sign(userObj, {
       secret: this.config.get("JWT_REFRESH_TOKEN_SECRET"),
-      expiresIn:
-        this.config.get("JWT_REFRESH_TOKEN_EXPIRES_IN") ||
-        JWT_REFRESH_TOKEN_EXPIRES_IN,
+      expiresIn: this.config.get("JWT_REFRESH_TOKEN_EXPIRES_IN"),
     });
 
     //Save the token to the database
@@ -219,6 +215,7 @@ export class AuthService {
 
     return token;
   }
+
   async logout(refreshToken: string, userId: string): Promise<Timestamp> {
     if (refreshToken) {
       const userTokens = await this.prismaService.refreshToken.findMany({
@@ -248,7 +245,7 @@ export class AuthService {
   }
 
   async getUserById(id: string): Promise<User> {
-    const user = await this.prismaService.user.findFirst({
+    const user = await this.prismaService.user.findUnique({
       where: {
         id,
       },
@@ -272,10 +269,6 @@ export class AuthService {
 
   async refreshToken(refreshToken: string): Promise<UserJWTReturnDto> {
     const tokenPayload = await this.decodeJWTToken(refreshToken);
-    if (!tokenPayload.isAuthenticated) {
-      throw new UnauthorizedException("User is not authenticated");
-    }
-
     const user = await this.getUserById(tokenPayload.id);
 
     //Check if the user has that refresh token
@@ -296,46 +289,23 @@ export class AuthService {
       throw new UnauthorizedException("User is not authenticated");
     }
 
-    const response = await this.generateAccessToken(
-      user,
-      !tokenPayload.isAuthenticated
-    );
+    const response = await this.generateAccessToken(user);
     return {
       tokens: {
         accessToken: response,
         refreshToken,
-        requiresTwoFaAuthentication: false,
       },
-
       id: user.id,
       login: user.login,
       email: user.email,
     };
   }
 
-  async authorizeWith2FA(
-    code: string,
-    accessToken: string
-  ): Promise<UserJWTReturnDto> {
-    //Decode the JWT token
-    const decoded = await this.decodeJWTToken(accessToken);
-
-    //Check if the user has already been authenticated
-    if (decoded.isAuthenticated) {
-      this.logger.log(
-        `Tried to authenticate user ${decoded.login} but they are already authenticated`,
-        "Auth [2FA]"
-      );
-      throw new ConflictException("User has already been authenticated");
-    }
-
-    //Find the user
-    const user = await this.getUserById(decoded.id);
-
+  async authorizeWith2FA(user: User, code: string): Promise<UserReturnDto> {
     //Check if the user has enabled 2FA
     if (!user.twoFaSecret) {
       this.logger.log(
-        `Tried to authenticate user ${decoded.login} but the user has not enabled 2FA`,
+        `Tried to authenticate user ${user.login} but the user has not enabled 2FA`,
         "Auth [2FA]"
       );
       throw new ConflictException("2FA is not enabled");
@@ -349,24 +319,17 @@ export class AuthService {
 
     if (!isValid) {
       this.logger.log(
-        `Tried to authenticate user ${decoded.login} but the code is invalid`,
+        `Tried to authenticate user ${user.login} but the code is invalid`,
         "Auth [2FA]"
       );
       throw new ForbiddenException("2FA code is incorrect");
     }
-
-    //Generate new tokens
-    const tokens = await this.generateTokens(user, true);
 
     //Return the tokens
     return {
       id: user.id,
       email: user.email,
       login: user.login,
-      tokens: {
-        ...tokens,
-        ...{ requiresTwoFaAuthentication: false },
-      },
     };
   }
 }

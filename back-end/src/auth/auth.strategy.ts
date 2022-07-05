@@ -26,9 +26,6 @@ export class JWTStrategy extends PassportStrategy(Strategy) {
   }
 
   async validate(request: Request, payload: JWTPayload): Promise<User> {
-    if (!payload.isAuthenticated) {
-      throw new ForbiddenException("User isn't authenticated");
-    }
     const user: User = await this.authService.getUserById(payload.id);
     return user;
   }

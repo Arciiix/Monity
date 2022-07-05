@@ -3,12 +3,13 @@ import { ConfigService } from "@nestjs/config";
 import { NestFactory } from "@nestjs/core";
 import { DocumentBuilder, SwaggerModule } from "@nestjs/swagger";
 import { AppModule } from "./app.module";
-import { PORT } from "./defaultConfig";
 import * as cookieParser from "cookie-parser";
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  app.setGlobalPrefix("v1");
+  const config = app.get<ConfigService>(ConfigService);
+  app.setGlobalPrefix(config.get("API_VERSION"));
+  const portToRunOn = config.get("PORT");
 
   const apiDocsConfig = new DocumentBuilder()
     .setTitle("Monity")
@@ -43,9 +44,6 @@ async function bootstrap() {
       },
     })
   );
-
-  const config = app.get<ConfigService>(ConfigService);
-  const portToRunOn = config.get("PORT") || PORT;
 
   await app.listen(portToRunOn);
   logger.log(`Server running on port ${portToRunOn}`, "Bootstrap");
