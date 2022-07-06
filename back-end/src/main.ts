@@ -11,6 +11,11 @@ async function bootstrap() {
   app.setGlobalPrefix(config.get("API_VERSION"));
   const portToRunOn = config.get("PORT");
 
+  app.enableCors({
+    credentials: true,
+    origin: true,
+  });
+
   const apiDocsConfig = new DocumentBuilder()
     .setTitle("Monity")
     .setDescription(

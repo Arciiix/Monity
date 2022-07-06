@@ -157,6 +157,7 @@ export class AuthController {
       id: req.user.id,
       email: req.user.email,
       login: req.user.login,
+      avatarURI: req.user.avatarURI,
     };
   }
 

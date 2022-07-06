@@ -1,0 +1,5 @@
+.avatar {
+  padding: 5px;
+  border-radius: 50%;
+  background-color: hsl(0, 0%, 41%);
+}

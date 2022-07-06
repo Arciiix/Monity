@@ -2,6 +2,7 @@ interface IUser {
   id: string;
   email: string;
   login: string;
+  avatarURI: string;
 }
 
 interface IUserLoginDto {

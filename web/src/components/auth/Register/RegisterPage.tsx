@@ -176,6 +176,7 @@ function RegisterPage() {
         id: registerRequest.data.id,
         login: registerRequest.data.login,
         email: registerRequest.data.email,
+        avatarURI: registerRequest.data.avatarURI,
       });
       if (rememberMe) {
         localStorage.setItem("cachedLogin", login);

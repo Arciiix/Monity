@@ -7,7 +7,7 @@ function Logo({ logoHeight }: { logoHeight: string | number }) {
   return (
     <>
       <img
-        src={`${process.env.PUBLIC_URL}/icon-1024-regular.png`}
+        src={`/icon-1024-regular.png`}
         alt="Monity"
         style={{
           height: logoHeight,

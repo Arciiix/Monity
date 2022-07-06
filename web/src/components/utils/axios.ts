@@ -18,14 +18,15 @@ function isAxiosErr(err: AxiosErr):
   }
 }
 
+axios.defaults.withCredentials = true;
 const fetch = axios.create();
 function createRefreshTokenInterceptor() {
   const interceptor = fetch.interceptors.response.use(
     (response) => response,
-    async (error) => {
+    async (err) => {
       //Skip common errors except for 401 Unauthenticated
-      if (error.response.status !== 401) {
-        return Promise.reject(error);
+      if (err.response.status !== 401) {
+        return Promise.reject(err);
       }
 
       //Don't make the loop - if the refresh token request gives 401
@@ -34,16 +35,19 @@ function createRefreshTokenInterceptor() {
       try {
         await axios.post("/v1/auth/refreshToken");
         createRefreshTokenInterceptor();
-        return fetch(error.response.config);
+        console.log("Refreshed the token...");
+        return fetch(err.response.config);
       } catch (error: any) {
         createRefreshTokenInterceptor();
-        window.location.reload();
+        console.log("Didn't get the token - reload window...");
+        if (!err.response.config?.dontReload) {
+          window.location.reload();
+        }
         return Promise.reject(error);
       }
     }
   );
 }
-createRefreshTokenInterceptor();
 
 export type { AxiosErr };
 export { isAxiosErr, fetch };

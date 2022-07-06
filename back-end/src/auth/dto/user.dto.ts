@@ -67,6 +67,9 @@ class UserReturnDto {
 
   @ApiProperty({ type: String, description: "email" })
   email: string;
+
+  @ApiProperty({ type: String, description: "Avatar URL" })
+  avatarURI: string;
 }
 
 class Tokens {
@@ -83,7 +86,16 @@ class UserJWTReturnDto extends UserReturnDto {
   };
 }
 
-class JWTPayload extends UserReturnDto {}
+class JWTPayload {
+  @ApiProperty({ type: String, description: "user id" })
+  id: string;
+
+  @ApiProperty({ type: String, description: "login" })
+  login: string;
+
+  @ApiProperty({ type: String, description: "email" })
+  email: string;
+}
 
 export {
   UserRegisterDto,
