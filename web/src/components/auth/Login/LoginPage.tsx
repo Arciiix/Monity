@@ -4,7 +4,11 @@ import RandomPicture from "../../RandomPicture/RandomPicture";
 
 function LoginPage() {
   return (
-    <Grid container classes={{ root: "container" }} flexDirection="row">
+    <Grid
+      container
+      classes={{ root: "height-screen justify-center" }}
+      flexDirection="row"
+    >
       <Grid
         item
         xs={false}

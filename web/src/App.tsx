@@ -1,4 +1,9 @@
-import { createTheme, CssBaseline, ThemeProvider } from "@mui/material";
+import {
+  createTheme,
+  CssBaseline,
+  StyledEngineProvider,
+  ThemeProvider,
+} from "@mui/material";
 import { useEffect } from "react";
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
@@ -23,41 +28,43 @@ const darkTheme = createTheme({
 function App() {
   return (
     <>
-      <ThemeProvider theme={darkTheme}>
-        <RecoilRoot>
-          <CssBaseline />
-          <InfoDialog />
-          <ToastContainer
-            position="bottom-center"
-            autoClose={5000}
-            hideProgressBar={false}
-            newestOnTop
-            closeOnClick
-            rtl={false}
-            pauseOnFocusLoss
-            draggable
-            pauseOnHover
-            toastStyle={{
-              backgroundColor: "#333333",
-              color: "#ffffff",
-            }}
-          />
-          <ConfirmationDialogProvider>
-            <BrowserRouter>
-              <Routes>
-                <Route path="/" element={<Navigate to="/app" />} />
-                <Route path="auth" element={<NoAuthentication />}>
-                  <Route path="login" element={<LoginPage />} />
-                  <Route path="register" element={<RegisterPage />} />
-                </Route>
-                <Route path="app" element={<RequireAuth />}>
-                  <Route path="" element={<Dashboard />} />
-                </Route>
-              </Routes>
-            </BrowserRouter>
-          </ConfirmationDialogProvider>
-        </RecoilRoot>
-      </ThemeProvider>
+      <StyledEngineProvider injectFirst>
+        <ThemeProvider theme={darkTheme}>
+          <RecoilRoot>
+            <CssBaseline />
+            <InfoDialog />
+            <ToastContainer
+              position="bottom-center"
+              autoClose={5000}
+              hideProgressBar={false}
+              newestOnTop
+              closeOnClick
+              rtl={false}
+              pauseOnFocusLoss
+              draggable
+              pauseOnHover
+              toastStyle={{
+                backgroundColor: "#333333",
+                color: "#ffffff",
+              }}
+            />
+            <ConfirmationDialogProvider>
+              <BrowserRouter>
+                <Routes>
+                  <Route path="/" element={<Navigate to="/app" />} />
+                  <Route path="auth" element={<NoAuthentication />}>
+                    <Route path="login" element={<LoginPage />} />
+                    <Route path="register" element={<RegisterPage />} />
+                  </Route>
+                  <Route path="app" element={<RequireAuth />}>
+                    <Route path="" element={<Dashboard />} />
+                  </Route>
+                </Routes>
+              </BrowserRouter>
+            </ConfirmationDialogProvider>
+          </RecoilRoot>
+        </ThemeProvider>
+      </StyledEngineProvider>
     </>
   );
 }
