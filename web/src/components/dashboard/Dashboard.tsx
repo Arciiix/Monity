@@ -10,7 +10,7 @@ function Dashboard() {
   let [testFetchData, setTestFetchData] = useState({});
 
   const testFetch = async () => {
-    let response = await fetch.get("/v1/auth/me");
+    let response = await fetch.get("/v1/user/me");
     setTestFetchData({ ...response.data, ...{ date: new Date() } });
   };
   useEffect(() => {

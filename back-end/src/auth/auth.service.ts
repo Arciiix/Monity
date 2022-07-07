@@ -7,13 +7,13 @@ import {
   UnauthorizedException,
 } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
-import { createHash } from "crypto";
 import { JwtService } from "@nestjs/jwt";
 import { User } from "@prisma/client";
 import * as argon2 from "argon2";
 import { Response } from "express";
 import { Timestamp } from "src/global.dto";
 import { PrismaService } from "src/prisma/prisma.service";
+import { UserService } from "src/user/user.service";
 import {
   JWTPayload,
   Tokens,
@@ -31,7 +31,8 @@ export class AuthService {
     private logger: Logger,
     private jwt: JwtService,
     private config: ConfigService,
-    private twoFaService: TwoFaService
+    private twoFaService: TwoFaService,
+    private userService: UserService
   ) {}
 
   async register(
@@ -54,7 +55,7 @@ export class AuthService {
     }
 
     const passwordHash = await argon2.hash(user.password);
-    const avatar = this.generateAvatarURI(user.email);
+    const avatar = this.userService.generateAvatarURI();
 
     const createdUser = await this.prismaService.user.create({
       data: {
@@ -328,11 +329,5 @@ export class AuthService {
       login: user.login,
       avatarURI: user.avatarURI,
     };
-  }
-
-  generateAvatarURI(email: string): string {
-    const hash = createHash("md5").update(email).digest("hex");
-    //Using Gravatar as the main source and DiceBear as falback
-    return `https://avatars.dicebear.com/api/gridy/${new Date().getTime()}.svg`;
   }
 }

@@ -143,24 +143,6 @@ export class AuthController {
     return await this.authService.refreshToken(refreshToken, res);
   }
 
-  @Get("me")
-  @ApiOkResponse({
-    description: "Get the current user data",
-    type: UserReturnDto,
-  })
-  @ApiForbiddenResponse({
-    description: "User isn't authenticated",
-  })
-  @Auth()
-  async me(@Req() req: RequestWithUser): Promise<UserReturnDto> {
-    return {
-      id: req.user.id,
-      email: req.user.email,
-      login: req.user.login,
-      avatarURI: req.user.avatarURI,
-    };
-  }
-
   @Get("/twoFaStatus")
   @ApiOkResponse({
     description: "Get the current user 2FA status",

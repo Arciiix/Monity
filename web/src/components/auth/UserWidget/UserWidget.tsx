@@ -1,4 +1,5 @@
-import { Avatar, Box, Typography } from "@mui/material";
+import { Avatar, Box, Menu, MenuItem, Typography } from "@mui/material";
+import { useId, useState } from "react";
 import { IUser } from "../../../types/user/user.interface";
 import LogOut from "../LogOut/LogOut";
 
@@ -15,7 +16,7 @@ const UserWidget = ({ user }: IUserWidgetProps) => {
       gap={1}
       m={1}
     >
-      <Box display="flex" flexDirection="row" alignItems="center" gap={"4px"}>
+      <div className="flex flex-row items-center gap-1">
         <div className={"p-2 bg-gray-600 rounded-full"}>
           <Avatar
             src={user?.avatarURI ?? ""}
@@ -29,7 +30,8 @@ const UserWidget = ({ user }: IUserWidgetProps) => {
         <Typography className="text-slate-800 text-xl">
           {user?.login ?? ""}
         </Typography>
-      </Box>
+      </div>
+
       <LogOut whiteTheme />
     </Box>
   );
