@@ -8,6 +8,7 @@ import {
 } from "@mui/material";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 import { useRecoilState } from "recoil";
 import userState from "../../../atoms/user/user.atom";
 import InfoDialogTypes from "../../../types/infoDialog/infoDialogTypes.enum";
@@ -29,6 +30,7 @@ const LogOut = ({ whiteTheme = false }: ILogOutProps) => {
       await fetch.delete("/v1/auth/logout");
       setUser(null);
       navigate("/auth/login");
+      toast(`👋 Bye, ${user?.login}!`);
     } catch (err: AxiosErr) {
       let parsedErr = isAxiosErr(err);
       if (parsedErr) {
