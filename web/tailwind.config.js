@@ -4,7 +4,7 @@ module.exports = {
   corePlugins: {
     preflight: false,
   },
-  important: "#root",
+  important: true,
   theme: {
     extend: {},
   },

@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from "@nestjs/common";
+import { Injectable, Logger, NotFoundException } from "@nestjs/common";
 import { prisma } from "@prisma/client";
 import { createHash } from "crypto";
 import { PrismaService } from "src/prisma/prisma.service";
@@ -6,7 +6,7 @@ import { UpdateAvatarReturnDto } from "./dto/user.dto";
 
 @Injectable()
 export class UserService {
-  constructor(private prismaService: PrismaService) {}
+  constructor(private prismaService: PrismaService, private logger: Logger) {}
 
   async changeAvatarURI(userId: string): Promise<UpdateAvatarReturnDto> {
     //Check if the user exists
@@ -29,6 +29,8 @@ export class UserService {
         avatarURI: newUri,
       },
     });
+
+    this.logger.log(`Changed the avatar URI for user ${userId}`);
 
     return {
       avatarURI: updatedUser.avatarURI,

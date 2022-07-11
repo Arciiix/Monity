@@ -57,6 +57,7 @@ function App() {
                     <Route path="register" element={<RegisterPage />} />
                   </Route>
                   <Route path="app" element={<RequireAuth />}>
+                    <Route path="dashboard" element={<Dashboard />} />
                     <Route path="" element={<Dashboard />} />
                   </Route>
                 </Routes>

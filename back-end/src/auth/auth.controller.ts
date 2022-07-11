@@ -128,6 +128,9 @@ export class AuthController {
   @ApiUnauthorizedResponse({
     description: "User is unauthorized",
   })
+  @ApiOperation({
+    summary: "Get a new access token from the refresh token",
+  })
   async refreshToken(
     @Req() req: RequestWithUser,
     @Res({ passthrough: true }) res: Response
@@ -192,6 +195,9 @@ export class AuthController {
   })
   @ApiConflictResponse({
     description: "2FA not enabled",
+  })
+  @ApiOperation({
+    summary: "Get the QR code for 2FA",
   })
   @Auth()
   async getTwoFaQrCode(@Req() req: RequestWithUser, @Res() res: Response) {

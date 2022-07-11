@@ -7,6 +7,7 @@ import { AuthModule } from "./auth/auth.module";
 import { PrismaModule } from "./prisma/prisma.module";
 import { AppLoggerMiddleware } from "./app-logger.middleware";
 import { UserModule } from "./user/user.module";
+import { AccountModule } from './account/account.module';
 import configuration from "./configuration";
 
 @Module({
@@ -17,6 +18,7 @@ import configuration from "./configuration";
     AuthModule,
     PrismaModule,
     UserModule,
+    AccountModule,
   ],
   controllers: [AppController],
   providers: [AppService, PrismaService, Logger],

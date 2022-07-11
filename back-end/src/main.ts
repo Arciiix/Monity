@@ -47,6 +47,7 @@ async function bootstrap() {
           errors: errorMessages,
         });
       },
+      whitelist: true,
     })
   );
 
