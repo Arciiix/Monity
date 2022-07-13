@@ -48,6 +48,7 @@ function createRefreshTokenInterceptor() {
     }
   );
 }
+createRefreshTokenInterceptor();
 
 export type { AxiosErr };
 export { isAxiosErr, fetch };
