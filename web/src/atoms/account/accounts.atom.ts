@@ -5,29 +5,7 @@ import { IUser } from "../../types/user/user.interface";
 
 const allAccountsState = atom<IAccount[]>({
   key: "allAccounts",
-  default: [
-    {
-      name: "test",
-      color: "#123321",
-      icon: AccountIcons.wallet,
-      currency: "PLN",
-      currentBalance: 123,
-    },
-    {
-      name: "test kolejny",
-      color: "#ab001d",
-      icon: AccountIcons.atlas,
-      currency: "USD",
-      currentBalance: 123,
-    },
-    {
-      name: "test123",
-      color: "#321123",
-      icon: AccountIcons.coins,
-      currency: "PLN",
-      currentBalance: 200,
-    },
-  ],
+  default: [],
 });
 
 const currentAccountIndexesState = atom<number[]>({
