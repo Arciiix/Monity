@@ -1,7 +1,5 @@
 import { ApiProperty, OmitType, PartialType } from "@nestjs/swagger";
-import { Account } from "@prisma/client";
 import {
-  IsAlphanumeric,
   IsEnum,
   IsHexColor,
   IsNumber,
@@ -87,4 +85,13 @@ export class ReturnAccountDto extends OmitType(CreateAccountDto, [
   currentBalance: number;
 }
 
-export class UpdateAccountDto extends PartialType(CreateAccountDto) {}
+export class UpdateAccountDto extends PartialType(
+  OmitType(CreateAccountDto, ["currentBalance"] as const)
+) {
+  @IsString()
+  @ApiProperty({
+    type: String,
+    description: "Account id",
+  })
+  id: string;
+}

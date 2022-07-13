@@ -1,13 +1,4 @@
-import {
-  Controller,
-  Get,
-  Post,
-  Body,
-  Patch,
-  Param,
-  Delete,
-  Req,
-} from "@nestjs/common";
+import { Controller, Get, Post, Body, Param, Req, Put } from "@nestjs/common";
 import {
   ApiConflictResponse,
   ApiCreatedResponse,
@@ -16,11 +7,14 @@ import {
   ApiOkResponse,
   ApiTags,
 } from "@nestjs/swagger";
-import { Account } from "@prisma/client";
 import { Auth } from "src/auth/auth.decorator";
 import { RequestWithUser } from "src/global.dto";
 import { AccountService } from "./account.service";
-import { CreateAccountDto, ReturnAccountDto } from "./dto/account.dto";
+import {
+  CreateAccountDto,
+  ReturnAccountDto,
+  UpdateAccountDto,
+} from "./dto/account.dto";
 
 @Controller("account")
 @ApiTags("account")
@@ -74,5 +68,24 @@ export class AccountController {
     return await this.accountService.create(body, req.user.id);
   }
 
-  //TODO: Delete and update endpoints
+  @Put()
+  @ApiOkResponse({
+    description: "The account has been updated",
+    type: ReturnAccountDto,
+  })
+  @ApiNotFoundResponse({
+    description:
+      "Account with the given id has not been found or it's not a valid id",
+  })
+  @ApiForbiddenResponse({
+    description: "User doesn't possess this account",
+  })
+  async update(
+    @Req() req: RequestWithUser,
+    @Body() body: UpdateAccountDto
+  ): Promise<ReturnAccountDto> {
+    return await this.accountService.update(body, req.user.id);
+  }
+
+  //TODO: Delete endpoint
 }

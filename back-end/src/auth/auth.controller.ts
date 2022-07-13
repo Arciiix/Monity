@@ -38,7 +38,6 @@ import {
   UserJWTReturnDto,
   UserLoginDto,
   UserRegisterDto,
-  UserReturnDto,
 } from "./dto/user.dto";
 import { TwoFaService } from "./twoFa.service";
 

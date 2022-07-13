@@ -1,6 +1,4 @@
 import { Injectable, Logger, NotFoundException } from "@nestjs/common";
-import { prisma } from "@prisma/client";
-import { createHash } from "crypto";
 import { PrismaService } from "src/prisma/prisma.service";
 import { UpdateAvatarReturnDto } from "./dto/user.dto";
 

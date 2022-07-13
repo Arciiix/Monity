@@ -6,12 +6,12 @@ import {
   NotFoundException,
 } from "@nestjs/common";
 import { Account } from "@prisma/client";
-import { Auth } from "src/auth/auth.decorator";
 import { PrismaService } from "src/prisma/prisma.service";
 import {
   AccountIcons,
   CreateAccountDto,
   ReturnAccountDto,
+  UpdateAccountDto,
 } from "./dto/account.dto";
 
 @Injectable()
@@ -91,5 +91,43 @@ export class AccountService {
     });
     this.logger.log(`Created a new account for user ${userId}`, "Account");
     return this.accountToReturnDto(response);
+  }
+
+  async update(
+    data: UpdateAccountDto,
+    userId: string
+  ): Promise<ReturnAccountDto> {
+    if (!data.id) {
+      throw new NotFoundException("Wrong id");
+    }
+    //Check if the account with the given id exists
+    const account = await this.prismaService.account.findFirst({
+      where: {
+        id: data.id,
+      },
+    });
+
+    if (!account) {
+      throw new NotFoundException("Account with the given id doesn't exist");
+    }
+
+    if (account.userId !== userId) {
+      throw new ForbiddenException("User doesn't possess this account");
+    }
+
+    const updated = await this.prismaService.account.update({
+      where: {
+        id: data.id,
+      },
+      data: {
+        ...data,
+        ...{
+          icon: data.icon ? data.icon.toString() : account.icon, //Icon from enum to string
+        },
+      },
+    });
+
+    this.logger.log(`Updated account ${data.id}`, "Account");
+    return this.accountToReturnDto(updated);
   }
 }
