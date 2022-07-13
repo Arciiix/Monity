@@ -1,10 +1,4 @@
-import {
-  AccountBalance,
-  Add,
-  Check,
-  Edit,
-  Settings,
-} from "@mui/icons-material";
+import { Check, Settings } from "@mui/icons-material";
 import {
   Button,
   Checkbox,
@@ -13,31 +7,35 @@ import {
   DialogContent,
   DialogTitle,
   Divider,
-  Fab,
-  IconButton,
+  FormControl,
+  FormHelperText,
   List,
   ListItem,
   ListItemButton,
   ListItemIcon,
-  ListItemSecondaryAction,
 } from "@mui/material";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useRecoilValue } from "recoil";
+import { currentAccountIndexesState } from "../../atoms/account/accounts.atom";
 import IAccount from "../../types/account/account.interface";
-import AccountIcons from "../../types/account/accountIcons.enum";
 import Account from "./Account";
 import AllAccounts from "./AllAccounts";
 
 interface ISelectAccountDialogProps {
   open: boolean;
   allAccounts: IAccount[];
+  handleSelect: (selectedAccounts: IAccount[]) => void;
   handleClose: () => void;
 }
 const SelectAccountDialog = ({
   open,
   allAccounts,
+  handleSelect,
   handleClose,
 }: ISelectAccountDialogProps) => {
   const [checkedIndexes, setCheckedIndexes] = useState<number[]>([]);
+  const currentSelectedIndexes = useRecoilValue(currentAccountIndexesState);
+  const [error, setError] = useState<string | null>();
 
   const handleToggleItem = (itemIndex: number) => {
     const currentIndex = checkedIndexes.indexOf(itemIndex);
@@ -52,41 +50,66 @@ const SelectAccountDialog = ({
     setCheckedIndexes(newChecked);
   };
 
+  const handleApply = () => {
+    if (checkedIndexes.length === 0) {
+      setError("You have to select at least one account");
+      return;
+    }
+    handleSelect(checkedIndexes.map((e) => allAccounts[e]));
+    handleCloseDialog();
+  };
+
+  const handleSelectAllAccounts = () => {
+    handleSelect(allAccounts);
+    handleCloseDialog();
+  };
+
+  const handleCloseDialog = () => {
+    handleClose();
+    setError(null);
+  };
+
+  useEffect(() => {
+    setCheckedIndexes(currentSelectedIndexes);
+  }, [currentSelectedIndexes]);
+
   return (
-    <Dialog open={open} onClose={handleClose}>
+    <Dialog open={open} onClose={handleCloseDialog}>
       <DialogTitle>Select accounts</DialogTitle>
       <DialogContent>
         <ListItem key="all-accounts" disablePadding>
-          <ListItemButton>
+          <ListItemButton onClick={handleSelectAllAccounts}>
             <AllAccounts accounts={allAccounts} />
-            {/* All accounts */}
           </ListItemButton>
         </ListItem>
         <Divider />
         <List>
-          {allAccounts.map((e, index) => {
-            return (
-              <ListItem key={`account-${index}`} disablePadding>
-                <ListItemButton onClick={() => handleToggleItem(index)}>
-                  <ListItemIcon>
-                    <Checkbox
-                      edge="start"
-                      checked={checkedIndexes.indexOf(index) !== -1}
-                      tabIndex={-1}
-                      disableRipple
-                    />
-                  </ListItemIcon>
-                  <Account account={e} />
-                </ListItemButton>
-              </ListItem>
-            );
-          })}
+          <FormControl required error={!!error} variant="standard">
+            {allAccounts.map((e, index) => {
+              return (
+                <ListItem key={`account-${index}`} disablePadding>
+                  <ListItemButton onClick={() => handleToggleItem(index)}>
+                    <ListItemIcon>
+                      <Checkbox
+                        edge="start"
+                        checked={checkedIndexes.indexOf(index) !== -1}
+                        tabIndex={-1}
+                        disableRipple
+                      />
+                    </ListItemIcon>
+                    <Account account={e} />
+                  </ListItemButton>
+                </ListItem>
+              );
+            })}
+            <FormHelperText>{error}</FormHelperText>
+          </FormControl>
         </List>
         <DialogActions>
           <Button className="flex gap-1" color="secondary">
             <Settings /> Manage accounts
           </Button>
-          <Button className="flex gap-1">
+          <Button className="flex gap-1" onClick={handleApply}>
             <Check /> Apply
           </Button>
         </DialogActions>

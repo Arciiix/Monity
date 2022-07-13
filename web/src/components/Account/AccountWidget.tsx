@@ -1,15 +1,18 @@
 import { useState } from "react";
-import { useRecoilValue } from "recoil";
+import { useRecoilState, useRecoilValue } from "recoil";
 import {
   allAccountsState,
-  currentAccountState,
+  currentAccountsState,
 } from "../../atoms/account/accounts.atom";
+import IAccount from "../../types/account/account.interface";
 
 import Account from "./Account";
+import AllAccounts from "./AllAccounts";
 import SelectAccountDialog from "./SelectAccountDialog";
 
 const AccountWidget = () => {
-  const currentAccount = useRecoilValue(currentAccountState);
+  const [currentAccounts, setCurrentAccounts] =
+    useRecoilState(currentAccountsState);
   const allAccounts = useRecoilValue(allAccountsState);
   const [isSelectAccountDialogOpen, setIsSelectAccountDialogOpen] =
     useState(false);
@@ -17,13 +20,27 @@ const AccountWidget = () => {
   const handleDialogToggle = () => {
     setIsSelectAccountDialogOpen((prev) => !prev);
   };
+  const handleAccountsSelect = (selectedAccounts: IAccount[]) => {
+    console.log(selectedAccounts);
+    setCurrentAccounts(selectedAccounts);
+  };
 
   return (
     <>
-      <Account account={currentAccount} onClick={handleDialogToggle} />
+      <div
+        className="flex flex-row shrink-1 flex-wrap w-full"
+        onClick={handleDialogToggle}
+      >
+        {currentAccounts.length === allAccounts.length ? (
+          <AllAccounts accounts={allAccounts} />
+        ) : (
+          currentAccounts.map((elem) => <Account account={elem} />)
+        )}
+      </div>
       <SelectAccountDialog
         allAccounts={allAccounts}
         open={isSelectAccountDialogOpen}
+        handleSelect={handleAccountsSelect}
         handleClose={handleDialogToggle}
       />
     </>

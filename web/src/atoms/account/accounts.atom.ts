@@ -30,25 +30,33 @@ const allAccountsState = atom<IAccount[]>({
   ],
 });
 
-const currentAccountIndexState = atom<number | null>({
-  key: "currentAccountIndex",
-  default: 0,
+const currentAccountIndexesState = atom<number[]>({
+  key: "currentAccountIndexes",
+  default: [0],
 });
 
-const currentAccountState = selector<IAccount>({
+const currentAccountsState = selector<IAccount[]>({
   key: "currentAccount",
   get: ({ get }) => {
     const allAccounts = get(allAccountsState);
-    const currentAccountIndex = get(currentAccountIndexState);
-    return allAccounts?.[currentAccountIndex ?? -1] || null;
+    const currentAccountsIndex = get(currentAccountIndexesState);
+    const accounts = currentAccountsIndex.map((index) => allAccounts[index]);
+    // return allAccounts?.[currentAccountIndex ?? -1] || null;
+    return accounts;
   },
   set: ({ get, set }, newValue) => {
-    let newIndex = get(allAccountsState).findIndex((e) =>
-      newValue instanceof DefaultValue ? false : e.id === newValue.id
-    );
-    if (newIndex === -1) newIndex = 0;
-    set(currentAccountIndexState, newIndex);
+    let newIndexes: number[] = [];
+    const allAccounts = get(allAccountsState);
+
+    if (newValue instanceof DefaultValue) {
+      newIndexes = [0];
+    } else {
+      newIndexes = allAccounts
+        .filter((elem) => newValue.find((e) => e.id === elem.id))
+        .map((e) => allAccounts.findIndex((element) => element.id === e.id));
+    }
+    set(currentAccountIndexesState, newIndexes);
   },
 });
 
-export { allAccountsState, currentAccountState };
+export { allAccountsState, currentAccountIndexesState, currentAccountsState };
