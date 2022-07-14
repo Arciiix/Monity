@@ -1,5 +1,6 @@
 import { Box } from "@mui/material";
 import { useEffect, useState } from "react";
+import { Outlet } from "react-router-dom";
 import { useRecoilState, useRecoilValue } from "recoil";
 import { allAccountsState } from "../../atoms/account/accounts.atom";
 import userState from "../../atoms/user/user.atom";
@@ -16,14 +17,9 @@ const drawerWidth = 250;
 function Dashboard() {
   const [isLoading, setIsLoading] = useState(true);
   let user = useRecoilValue(userState) as IUser;
-  const [testFetchData, setTestFetchData] = useState({});
+
   const [allAccounts, setAllAccounts] = useRecoilState(allAccountsState);
   const { addToInfoDialogs, displayUnknownErrorDialog } = useInfoDialog();
-
-  const testFetch = async () => {
-    const response = await fetch.get("/v1/user/me");
-    setTestFetchData({ ...response.data, ...{ date: new Date() } });
-  };
 
   const fetchAccounts = async (): Promise<boolean> => {
     try {
@@ -49,14 +45,9 @@ function Dashboard() {
   };
 
   useEffect(() => {
-    const interval = setInterval(testFetch, 5000);
     fetchAccounts().then((isSuccess) => {
       if (isSuccess) setIsLoading(false);
     });
-
-    return () => {
-      clearInterval(interval);
-    };
   }, []);
 
   if (isLoading) {
@@ -76,8 +67,7 @@ function Dashboard() {
             width: { sm: `calc(100% - ${drawerWidth}px)` },
           }}
         >
-          <h1>Hi, {user.login}</h1>
-          <span>{JSON.stringify(testFetchData, null, 2)}</span>
+          <Outlet />
         </Box>
       </Box>
     </div>
