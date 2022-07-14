@@ -20,7 +20,7 @@ import ConfirmationDialogProvider from "./context/ConfirmationDialogContext";
 import "react-toastify/dist/ReactToastify.css";
 import Summary from "./components/Summary/Summary";
 import IRoute from "./types/routing/route.interface";
-import { Home, Settings } from "@mui/icons-material";
+import { Home, Menu, Person, Settings } from "@mui/icons-material";
 
 const darkTheme = createTheme({
   palette: {
@@ -28,9 +28,11 @@ const darkTheme = createTheme({
   },
 });
 
+//Remember to provide the global route (ie. "/app/...")
 const routerMapping = {
   "/app/summary": "summary",
   "/app/settings": "settings",
+  "/app/manage/accounts": "manage/accounts",
   default: null,
 };
 const routes: IRoute[] = [
@@ -38,6 +40,18 @@ const routes: IRoute[] = [
     name: "summary",
     displayName: "Summary",
     icon: <Home />,
+  },
+  {
+    name: "manage",
+    displayName: "Manage",
+    icon: <Menu />,
+    subroutes: [
+      {
+        name: "manage/accounts",
+        displayName: "Accounts",
+        icon: <Person />,
+      },
+    ],
   },
   {
     name: "settings",
@@ -81,6 +95,9 @@ function App() {
                     <Route path="" element={<Dashboard />}>
                       <Route path="" element={<Navigate to="summary" />} />
                       <Route path="summary" element={<Summary />} />
+                      <Route path="manage">
+                        <Route path="accounts" element={<Summary />} />
+                      </Route>
                     </Route>
                   </Route>
                 </Routes>

@@ -34,7 +34,9 @@ const AccountWidget = () => {
         {currentAccounts.length === allAccounts.length ? (
           <AllAccounts accounts={allAccounts} />
         ) : (
-          currentAccounts.map((elem) => <Account account={elem} />)
+          currentAccounts.map((elem) => (
+            <Account key={elem.id} account={elem} />
+          ))
         )}
       </div>
       <SelectAccountDialog

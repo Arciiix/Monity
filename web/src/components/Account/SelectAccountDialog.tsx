@@ -97,7 +97,7 @@ const SelectAccountDialog = ({
                         disableRipple
                       />
                     </ListItemIcon>
-                    <Account account={e} />
+                    <Account key={e.id} account={e} />
                   </ListItemButton>
                 </ListItem>
               );
