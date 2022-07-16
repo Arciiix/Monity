@@ -9,7 +9,7 @@ import {
   ListItemText,
 } from "@mui/material";
 import { useEffect, useMemo, useState } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useRecoilValue } from "recoil";
 import { routerMapping, routes } from "../../../App";
 import userState from "../../../atoms/user/user.atom";
@@ -19,6 +19,8 @@ import UserWidget from "../../auth/UserWidget/UserWidget";
 
 const DrawerContent = () => {
   const location = useLocation();
+  const navigate = useNavigate();
+
   const [currentActiveListItem, setCurrentActiveListItem] =
     useState<RoutesType>("default");
   const [routesState, setRoutesState] = useState<IRoute[]>([]);
@@ -34,6 +36,17 @@ const DrawerContent = () => {
         overrideOpen ?? !prev[parentIndex].open ?? false;
       return newState;
     });
+  };
+
+  const navigateToRoute = (routeName: string) => {
+    const route = Object.entries(routerMapping).find(
+      ([key, value]) => value === routeName
+    );
+    if (!route) {
+      return;
+    } else {
+      navigate(route[0]);
+    }
   };
 
   const renderRoute = (e: IRoute, index: number) => {
@@ -68,6 +81,7 @@ const DrawerContent = () => {
           <ListItemButton
             key={`${e.name}-route-item-btn`}
             selected={routerMapping[currentActiveListItem] === e.name}
+            onClick={() => navigateToRoute(e.name)}
           >
             <ListItemIcon>{e.icon}</ListItemIcon>
             <ListItemText>{e.displayName}</ListItemText>
