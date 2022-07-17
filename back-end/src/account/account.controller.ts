@@ -107,6 +107,9 @@ export class AccountController {
   @ApiForbiddenResponse({
     description: "User doesn't possess this account",
   })
+  @ApiConflictResponse({
+    description: "User has to have at least one account",
+  })
   async delete(
     @Req() req: RequestWithUser,
     @Param("id") id: string

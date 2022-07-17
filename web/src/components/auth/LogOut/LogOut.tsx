@@ -26,6 +26,7 @@ const LogOut = ({ whiteTheme = false }: ILogOutProps) => {
   const [theme, setTheme] = useState<Theme>();
 
   const handleLogOut = async () => {
+    console.log("Trying to log out...");
     try {
       await fetch.delete("/v1/auth/logout");
       setUser(null);
@@ -64,8 +65,8 @@ const LogOut = ({ whiteTheme = false }: ILogOutProps) => {
 
   return (
     <ThemeProvider theme={theme as Theme}>
-      <Tooltip title="Log out">
-        <IconButton onClick={handleLogOut}>
+      <Tooltip title="Log out" onClick={handleLogOut}>
+        <IconButton>
           <Logout />
         </IconButton>
       </Tooltip>

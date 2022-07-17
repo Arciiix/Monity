@@ -1,6 +1,8 @@
 import {
   ConflictException,
   ForbiddenException,
+  forwardRef,
+  Inject,
   Injectable,
   Logger,
   NotFoundException,
@@ -11,6 +13,8 @@ import { JwtService } from "@nestjs/jwt";
 import { User } from "@prisma/client";
 import * as argon2 from "argon2";
 import { Response } from "express";
+import { AccountService } from "src/account/account.service";
+import { AccountIcons } from "src/account/dto/account.dto";
 import { Timestamp } from "src/global.dto";
 import { PrismaService } from "src/prisma/prisma.service";
 import { UserService } from "src/user/user.service";
@@ -32,7 +36,8 @@ export class AuthService {
     private jwt: JwtService,
     private config: ConfigService,
     private twoFaService: TwoFaService,
-    private userService: UserService
+    private userService: UserService,
+    private accountService: AccountService
   ) {}
 
   async register(
@@ -68,7 +73,22 @@ export class AuthService {
 
     const tokens = await this.generateTokens(createdUser, res);
 
-    this.logger.log(`A new user ${createdUser.login} has been created`, "Auth");
+    //Create the first, initial account for user
+    await this.accountService.create(
+      {
+        name: "Money",
+        icon: AccountIcons.wallet,
+        color: "#00405e",
+        currentBalance: 0,
+        currency: "PLN",
+      },
+      createdUser.id
+    );
+
+    await this.logger.log(
+      `A new user ${createdUser.login} has been created`,
+      "Auth"
+    );
     return {
       id: createdUser.id,
       email: createdUser.email,

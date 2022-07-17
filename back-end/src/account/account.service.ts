@@ -147,6 +147,16 @@ export class AccountService {
       throw new ForbiddenException("User doesn't possess this account");
     }
 
+    //Check how many accounts user has
+    const accountAmount = await this.prismaService.account.count({
+      where: {
+        userId,
+      },
+    });
+    if (accountAmount <= 1) {
+      throw new ConflictException("User has to have at least one account");
+    }
+
     await this.prismaService.account.delete({
       where: {
         id,

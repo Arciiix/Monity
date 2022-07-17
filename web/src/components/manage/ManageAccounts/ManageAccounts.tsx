@@ -12,9 +12,9 @@ import {
 import { useEffect, useMemo, useState } from "react";
 import { FaWallet } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 import { useRecoilState } from "recoil";
 import { allAccountsState } from "../../../atoms/account/accounts.atom";
-import overrideAppBarContentState from "../../../atoms/header/overrideAppBarContent.atom";
 import IAccount from "../../../types/account/account.interface";
 import AccountIcons from "../../../types/account/accountIcons.enum";
 import InfoDialogTypes from "../../../types/infoDialog/infoDialogTypes.enum";
@@ -47,6 +47,10 @@ const ManageAcconts = () => {
 
   const [allAccounts, setAllAccounts] = useRecoilState(allAccountsState);
   const handleDeleteAccount = async (e: IAccount) => {
+    if (allAccounts.length <= 1) {
+      toast.warn("You cannot delete the only account you have");
+      return;
+    }
     const isConfirmed = await confirm(
       `Do you really want to delete ${e.name}? This account cannot be undone 😱`
     );
@@ -59,6 +63,7 @@ const ManageAcconts = () => {
       if (error) {
         switch (error.statusCode) {
           case 403:
+            //User doesn't possess this account
             addToInfoDialogs({
               type: InfoDialogTypes.error,
               title: "Permission error",
@@ -71,6 +76,14 @@ const ManageAcconts = () => {
               type: InfoDialogTypes.error,
               title: "Not found",
               message: "This account has not been found!",
+            });
+            break;
+          case 409:
+            //User tried to delete the only account
+            addToInfoDialogs({
+              type: InfoDialogTypes.error,
+              title: "Cannot delete the account",
+              message: "You have to have at least one account!",
             });
             break;
           default:
@@ -142,6 +155,7 @@ const ManageAcconts = () => {
   return (
     <div className="flex flex-col h-full w-full">
       <LoadingOverlay isLoading={isLoading} />
+      {/* No need for no accounts screen because every user has to have at least one account */}
       <List>{renderItems}</List>
 
       <Tooltip className="fixed bottom-4 right-4" title="Add account">

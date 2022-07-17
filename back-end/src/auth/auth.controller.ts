@@ -100,8 +100,14 @@ export class AuthController {
     const refreshToken =
       req.cookies.refreshToken || req.headers.authorization?.split(" ")[1];
 
-    res.clearCookie("accessToken");
-    res.clearCookie("refreshToken");
+    res.clearCookie("accessToken", {
+      path: `/`,
+      httpOnly: true,
+    });
+    res.clearCookie("refreshToken", {
+      path: `/${this.configService.get("API_VERSION")}/auth`,
+      httpOnly: true,
+    });
 
     const userId = (req.user as User).id;
     if (refreshToken) {
