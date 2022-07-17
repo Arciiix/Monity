@@ -6,6 +6,7 @@ import {
   NotFoundException,
 } from "@nestjs/common";
 import { Account } from "@prisma/client";
+import { Timestamp } from "src/global.dto";
 import { PrismaService } from "src/prisma/prisma.service";
 import {
   AccountIcons,
@@ -129,5 +130,29 @@ export class AccountService {
 
     this.logger.log(`Updated account ${data.id}`, "Account");
     return this.accountToReturnDto(updated);
+  }
+
+  async delete(id: string, userId: string): Promise<Timestamp> {
+    //Find the account
+    const account = await this.prismaService.account.findFirst({
+      where: {
+        id,
+      },
+    });
+    if (!account) {
+      throw new NotFoundException("Account with the given id doesn't exist");
+    }
+
+    if (account.userId !== userId) {
+      throw new ForbiddenException("User doesn't possess this account");
+    }
+
+    await this.prismaService.account.delete({
+      where: {
+        id,
+      },
+    });
+    this.logger.log(`Account ${id} has been deleted`);
+    return { timestamp: new Date() };
   }
 }

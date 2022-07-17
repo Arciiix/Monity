@@ -1,4 +1,13 @@
-import { Controller, Get, Post, Body, Param, Req, Put } from "@nestjs/common";
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Param,
+  Req,
+  Put,
+  Delete,
+} from "@nestjs/common";
 import {
   ApiConflictResponse,
   ApiCreatedResponse,
@@ -8,7 +17,7 @@ import {
   ApiTags,
 } from "@nestjs/swagger";
 import { Auth } from "src/auth/auth.decorator";
-import { RequestWithUser } from "src/global.dto";
+import { RequestWithUser, Timestamp } from "src/global.dto";
 import { AccountService } from "./account.service";
 import {
   CreateAccountDto,
@@ -87,5 +96,21 @@ export class AccountController {
     return await this.accountService.update(body, req.user.id);
   }
 
-  //TODO: Delete endpoint
+  @Delete(":id")
+  @ApiOkResponse({
+    description: "The account has been deleted",
+    type: Timestamp,
+  })
+  @ApiNotFoundResponse({
+    description: "Account with the given id has not been found",
+  })
+  @ApiForbiddenResponse({
+    description: "User doesn't possess this account",
+  })
+  async delete(
+    @Req() req: RequestWithUser,
+    @Param("id") id: string
+  ): Promise<Timestamp> {
+    return await this.accountService.delete(id, req.user.id);
+  }
 }
