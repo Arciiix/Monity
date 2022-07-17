@@ -5,6 +5,7 @@ import userState from "../../../atoms/user/user.atom";
 import AccountWidget from "../../Account/AccountWidget";
 import UserWidget from "../../auth/UserWidget/UserWidget";
 import isDrawerOpenState from "../../../atoms/drawer/isDrawerOpen.atom";
+import overrideAppBarContentState from "../../../atoms/header/overrideAppBarContent.atom";
 
 interface IMainAppBarProps {
   drawerWidth: number;
@@ -12,6 +13,7 @@ interface IMainAppBarProps {
 
 const MainAppBar = ({ drawerWidth }: IMainAppBarProps) => {
   const isDrawerOpen = useRecoilValue(isDrawerOpenState);
+  const overrideAppBarContent = useRecoilValue(overrideAppBarContentState);
 
   return (
     <AppBar
@@ -29,7 +31,7 @@ const MainAppBar = ({ drawerWidth }: IMainAppBarProps) => {
       }}
     >
       <DrawerToggle />
-      <AccountWidget />
+      {overrideAppBarContent ?? <AccountWidget />}
     </AppBar>
   );
 };

@@ -7,8 +7,9 @@ import userState from "../../atoms/user/user.atom";
 import IAccount from "../../types/account/account.interface";
 import InfoDialogTypes from "../../types/infoDialog/infoDialogTypes.enum";
 import { IUser } from "../../types/user/user.interface";
+import useData from "../hooks/useData";
 import useInfoDialog from "../hooks/useInfoDialog";
-import Loading from "../Loading/Loading/Loading";
+import LoadingOverlay from "../Loading/LoadingOverlay/LoadingOverlay";
 import { fetch, isAxiosErr } from "../utils/axios";
 import MainAppBar from "./MainAppBar/MainAppBar";
 import MainDrawer from "./MainDrawer/MainDrawer";
@@ -16,33 +17,7 @@ import MainDrawer from "./MainDrawer/MainDrawer";
 const drawerWidth = 250;
 function Dashboard() {
   const [isLoading, setIsLoading] = useState(true);
-  let user = useRecoilValue(userState) as IUser;
-
-  const [allAccounts, setAllAccounts] = useRecoilState(allAccountsState);
-  const { addToInfoDialogs, displayUnknownErrorDialog } = useInfoDialog();
-
-  const fetchAccounts = async (): Promise<boolean> => {
-    try {
-      const response = await fetch.get("/v1/account");
-      setAllAccounts(response.data as IAccount[]);
-      return true;
-    } catch (err) {
-      const error = isAxiosErr(err);
-      if (error) {
-        addToInfoDialogs({
-          title: "Unknown server error",
-          type: InfoDialogTypes.error,
-          message: `Status code: ${
-            error.statusCode
-          }, response: ${JSON.stringify(error)}`,
-        });
-      } else {
-        displayUnknownErrorDialog();
-      }
-      console.error(err);
-      return false;
-    }
-  };
+  const { fetchAccounts } = useData();
 
   useEffect(() => {
     fetchAccounts().then((isSuccess) => {
@@ -51,7 +26,7 @@ function Dashboard() {
   }, []);
 
   if (isLoading) {
-    return <Loading />;
+    return <LoadingOverlay isLoading={true} />;
   }
 
   return (

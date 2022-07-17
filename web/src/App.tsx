@@ -20,7 +20,15 @@ import ConfirmationDialogProvider from "./context/ConfirmationDialogContext";
 import "react-toastify/dist/ReactToastify.css";
 import Summary from "./components/Summary/Summary";
 import IRoute from "./types/routing/route.interface";
-import { Home, Menu, Person, Settings } from "@mui/icons-material";
+import {
+  AccountBalanceWallet,
+  Home,
+  Menu,
+  Person,
+  Settings,
+} from "@mui/icons-material";
+import ManageAccounts from "./components/manage/ManageAccounts/ManageAccounts";
+import AccountForm from "./components/Account/AccountForm/AccountForm";
 
 const darkTheme = createTheme({
   palette: {
@@ -33,6 +41,8 @@ const routerMapping = {
   "/app/summary": "summary",
   "/app/settings": "settings",
   "/app/manage/accounts": "manage/accounts",
+  "/app/manage/accounts/add": "manage/accounts",
+  "/app/manage/accounts/edit/:id": "manage/accounts",
   default: null,
 };
 const routes: IRoute[] = [
@@ -49,7 +59,7 @@ const routes: IRoute[] = [
       {
         name: "manage/accounts",
         displayName: "Accounts",
-        icon: <Person />,
+        icon: <AccountBalanceWallet />,
       },
     ],
   },
@@ -96,7 +106,12 @@ function App() {
                       <Route path="" element={<Navigate to="summary" />} />
                       <Route path="summary" element={<Summary />} />
                       <Route path="manage">
-                        <Route path="accounts" element={<Summary />} />
+                        <Route path="accounts" element={<ManageAccounts />} />
+                        <Route path="accounts/add" element={<AccountForm />} />
+                        <Route
+                          path="accounts/edit/:id"
+                          element={<AccountForm />}
+                        />
                       </Route>
                     </Route>
                   </Route>

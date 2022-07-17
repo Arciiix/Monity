@@ -15,6 +15,7 @@ import {
   ListItemIcon,
 } from "@mui/material";
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useRecoilValue } from "recoil";
 import { currentAccountIndexesState } from "../../atoms/account/accounts.atom";
 import IAccount from "../../types/account/account.interface";
@@ -33,6 +34,8 @@ const SelectAccountDialog = ({
   handleSelect,
   handleClose,
 }: ISelectAccountDialogProps) => {
+  const navigate = useNavigate();
+
   const [checkedIndexes, setCheckedIndexes] = useState<number[]>([]);
   const currentSelectedIndexes = useRecoilValue(currentAccountIndexesState);
   const [error, setError] = useState<string | null>();
@@ -67,6 +70,11 @@ const SelectAccountDialog = ({
   const handleCloseDialog = () => {
     handleClose();
     setError(null);
+  };
+
+  const handleManageAccounts = () => {
+    navigate("/app/manage/accounts");
+    handleCloseDialog();
   };
 
   useEffect(() => {
@@ -106,7 +114,11 @@ const SelectAccountDialog = ({
           </FormControl>
         </List>
         <DialogActions>
-          <Button className="flex gap-1" color="secondary">
+          <Button
+            className="flex gap-1"
+            color="secondary"
+            onClick={handleManageAccounts}
+          >
             <Settings /> Manage accounts
           </Button>
           <Button className="flex gap-1" onClick={handleApply}>

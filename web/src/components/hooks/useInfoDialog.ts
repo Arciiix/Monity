@@ -13,12 +13,24 @@ const useInfoDialog = () => {
   const displayUnknownErrorDialog = () => {
     addToInfoDialogs({
       title: "Unknown error",
-      message: `An unknown error has occured :(`,
+      message: `An unknown error has occured 😒`,
       type: InfoDialogTypes.error,
     });
   };
 
-  return { addToInfoDialogs, displayUnknownErrorDialog };
+  const displayUnreleasedFeatureDialog = () => {
+    addToInfoDialogs({
+      title: "Oops!",
+      message: `You've just discovered an unreleased feature! Wooow... wait a minute! 👀`,
+      type: InfoDialogTypes.warning,
+    });
+  };
+
+  return {
+    addToInfoDialogs,
+    displayUnknownErrorDialog,
+    displayUnreleasedFeatureDialog,
+  };
 };
 
 export default useInfoDialog;

@@ -9,7 +9,12 @@ import {
   ListItemText,
 } from "@mui/material";
 import { useEffect, useMemo, useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import {
+  Location,
+  matchRoutes,
+  useLocation,
+  useNavigate,
+} from "react-router-dom";
 import { useRecoilValue } from "recoil";
 import { routerMapping, routes } from "../../../App";
 import userState from "../../../atoms/user/user.atom";
@@ -128,17 +133,29 @@ const DrawerContent = () => {
     }
   };
 
+  const parseRoute = (location: Location): string | null => {
+    const routes = Object.keys(routerMapping).map((e) => ({ path: e }));
+    const result = matchRoutes(routes, location);
+    return result?.[0]?.route?.path || null;
+  };
+
   useEffect(() => {
-    if (location.pathname in routerMapping) {
-      setCurrentActiveListItem(location.pathname as RoutesType);
-      handleSubroutesExpand(location.pathname as RoutesType);
+    const pathname = parseRoute(location);
+    if (pathname) {
+      setCurrentActiveListItem(pathname as RoutesType);
+      handleSubroutesExpand(pathname as RoutesType);
     } else {
       setCurrentActiveListItem("default");
     }
   }, [location]);
   useEffect(() => {
     setRoutesState(routes);
-    handleSubroutesExpand(location.pathname as RoutesType);
+
+    const pathname = parseRoute(location);
+    console.log(pathname);
+    if (pathname) {
+      handleSubroutesExpand(location.pathname as RoutesType);
+    }
   }, []);
 
   return (
