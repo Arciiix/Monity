@@ -21,6 +21,10 @@ async function bootstrap() {
     .setDescription(
       "The REST API of Monity - personal finance manager, budget tracker, and analyzer that helps you monitor your money."
     )
+    .addTag("auth", "User authentication")
+    .addTag("user", "User data and info, e.g. avatar")
+    .addTag("account", "Managing accounts")
+    .addTag("person", "Managing people, i.e. receivers and senders")
     .addBearerAuth()
     .addCookieAuth("accessToken")
     .build();

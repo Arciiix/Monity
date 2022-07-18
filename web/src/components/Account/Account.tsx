@@ -1,5 +1,6 @@
 import { AccountBalance } from "@mui/icons-material";
 import IAccount from "../../types/account/account.interface";
+import AccountIcons from "../../types/account/accountIcons.enum";
 import getFontContrastingColor from "../utils/getFontContrastingColor";
 import AccountIcon from "./AccountIcon";
 
@@ -23,7 +24,7 @@ const Account = ({ account, onClick }: IAccountProps) => {
         }}
       >
         <AccountIcon
-          name={account.icon}
+          name={AccountIcons[account.icon] as unknown as AccountIcons}
           color={getFontContrastingColor(account.color)}
         />
       </div>

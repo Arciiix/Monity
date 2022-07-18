@@ -19,6 +19,7 @@ model User {
 
   refreshTokens RefreshToken[]
   accounts      Account[]
+  people        Person[]
 }
 
 model RefreshToken {
@@ -40,5 +41,16 @@ model Account {
   currency       String
 
   User   User?   @relation(fields: [userId], references: [id])
+  userId String?
+}
+
+model Person {
+  id         String  @id @default(cuid())
+  name       String
+  notes      String  @default("")
+  category   String
+  isFavorite Boolean @default(false)
+
+  user   User?   @relation(fields: [userId], references: [id])
   userId String?
 }
