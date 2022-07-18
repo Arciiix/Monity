@@ -161,7 +161,7 @@ function Login(props: ILoginProps) {
             displayUnknownErrorDialog();
         }
       } else {
-        console.error(error);
+        console.error(err);
         displayUnknownErrorDialog();
       }
 

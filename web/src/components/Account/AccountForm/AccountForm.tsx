@@ -216,7 +216,7 @@ const AccountForm = () => {
             displayUnknownErrorDialog();
         }
       } else {
-        console.error(error);
+        console.error(err);
         displayUnknownErrorDialog();
       }
       setIsLoading(false);

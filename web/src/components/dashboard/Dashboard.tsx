@@ -14,13 +14,17 @@ import { fetch, isAxiosErr } from "../utils/axios";
 import MainAppBar from "./MainAppBar/MainAppBar";
 import MainDrawer from "./MainDrawer/MainDrawer";
 
-const drawerWidth = 250;
+export const drawerWidth = 250;
 function Dashboard() {
   const [isLoading, setIsLoading] = useState(true);
-  const { fetchAccounts } = useData();
+  const { fetchAccounts, fetchPeople } = useData();
 
   useEffect(() => {
-    fetchAccounts().then((isSuccess) => {
+    Promise.all([fetchAccounts(), fetchPeople()]).then((results) => {
+      let isSuccess = true;
+      results.forEach((e) => {
+        if (!e) isSuccess = false;
+      });
       if (isSuccess) setIsLoading(false);
     });
   }, []);
@@ -30,9 +34,9 @@ function Dashboard() {
   }
 
   return (
-    <div>
+    <div className="h-full">
       <MainAppBar drawerWidth={drawerWidth} />
-      <Box display="flex" flexDirection="row">
+      <Box display="flex" flexDirection="row" className="h-full">
         <MainDrawer width={drawerWidth} />
         <Box
           component="main"
@@ -40,6 +44,7 @@ function Dashboard() {
             flexGrow: 1,
             p: 3,
             width: { sm: `calc(100% - ${drawerWidth}px)` },
+            height: "100%",
           }}
         >
           <Outlet />

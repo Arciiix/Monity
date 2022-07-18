@@ -24,11 +24,13 @@ import {
   AccountBalanceWallet,
   Home,
   Menu,
+  PermContactCalendar,
   Person,
   Settings,
 } from "@mui/icons-material";
 import ManageAccounts from "./components/manage/ManageAccounts/ManageAccounts";
 import AccountForm from "./components/Account/AccountForm/AccountForm";
+import ManagePeople from "./components/manage/ManagePeople/ManagePeople";
 
 const darkTheme = createTheme({
   palette: {
@@ -43,6 +45,7 @@ const routerMapping = {
   "/app/manage/accounts": "manage/accounts",
   "/app/manage/accounts/add": "manage/accounts",
   "/app/manage/accounts/edit/:id": "manage/accounts",
+  "/app/manage/people": "manage/people",
   default: null,
 };
 const routes: IRoute[] = [
@@ -60,6 +63,11 @@ const routes: IRoute[] = [
         name: "manage/accounts",
         displayName: "Accounts",
         icon: <AccountBalanceWallet />,
+      },
+      {
+        name: "manage/people",
+        displayName: "People",
+        icon: <PermContactCalendar />,
       },
     ],
   },
@@ -112,6 +120,8 @@ function App() {
                           path="accounts/edit/:id"
                           element={<AccountForm />}
                         />
+
+                        <Route path="people" element={<ManagePeople />} />
                       </Route>
                     </Route>
                   </Route>

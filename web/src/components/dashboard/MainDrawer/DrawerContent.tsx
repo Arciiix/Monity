@@ -69,6 +69,7 @@ const DrawerContent = () => {
             </ListItemButton>
           </ListItem>
           <Collapse
+            className="pl-3"
             key={`${e.name}-collapse-item`}
             in={!!routesState[index].open}
             timeout="auto"

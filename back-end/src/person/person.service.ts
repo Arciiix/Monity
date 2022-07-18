@@ -31,6 +31,14 @@ export class PersonService {
       where: {
         userId,
       },
+      orderBy: [
+        {
+          isFavorite: "desc",
+        },
+        {
+          name: "asc",
+        },
+      ],
     });
 
     this.logger.log(`Got all people of user ${userId}`, "Person");

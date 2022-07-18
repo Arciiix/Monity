@@ -87,11 +87,11 @@ const ManageAccounts = () => {
             });
             break;
           default:
-            console.error(error);
+            console.error(err);
             displayUnknownErrorDialog();
         }
       } else {
-        console.error(error);
+        console.error(err);
         displayUnknownErrorDialog();
       }
     }
