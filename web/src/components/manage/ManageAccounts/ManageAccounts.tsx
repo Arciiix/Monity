@@ -36,7 +36,7 @@ const ManageAccountsHeader = () => {
   );
 };
 
-const ManageAcconts = () => {
+const ManageAccounts = () => {
   const { addToInfoDialogs, displayUnknownErrorDialog } = useInfoDialog();
   const navigate = useNavigate();
   const appBarContent = useAppBarContent();
@@ -171,4 +171,4 @@ const ManageAcconts = () => {
   );
 };
 
-export default ManageAcconts;
+export default ManageAccounts;
