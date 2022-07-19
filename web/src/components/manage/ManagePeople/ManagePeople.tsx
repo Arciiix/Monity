@@ -76,7 +76,7 @@ const ManagePeople = () => {
 
   const handleDeletePerson = async (e: IPerson) => {
     const isConfirmed = await confirm(
-      `Do you really want to delete ${e.name}? This account cannot be undone 😱`
+      `Do you really want to delete ${e.name}? This action cannot be undone 😱`
     );
     if (!isConfirmed) return;
     setIsLoading(true);

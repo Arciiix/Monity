@@ -31,6 +31,7 @@ import {
 import ManageAccounts from "./components/manage/ManageAccounts/ManageAccounts";
 import AccountForm from "./components/Account/AccountForm/AccountForm";
 import ManagePeople from "./components/manage/ManagePeople/ManagePeople";
+import PersonForm from "./components/Person/PersonForm/PersonForm";
 
 const darkTheme = createTheme({
   palette: {
@@ -46,6 +47,8 @@ const routerMapping = {
   "/app/manage/accounts/add": "manage/accounts",
   "/app/manage/accounts/edit/:id": "manage/accounts",
   "/app/manage/people": "manage/people",
+  "/app/manage/people/add": "manage/people",
+  "/app/manage/people/edit/:id": "manage/people",
   default: null,
 };
 const routes: IRoute[] = [
@@ -122,6 +125,11 @@ function App() {
                         />
 
                         <Route path="people" element={<ManagePeople />} />
+                        <Route path="people/add" element={<PersonForm />} />
+                        <Route
+                          path="people/edit/:id"
+                          element={<PersonForm />}
+                        />
                       </Route>
                     </Route>
                   </Route>

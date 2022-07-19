@@ -7,7 +7,7 @@ import AccountIcons from "../../../types/account/accountIcons.enum";
 import useAppBarContent from "../../hooks/useAppBarContent";
 import IconPicker from "../../Pickers/IconPicker/IconPicker";
 import getFontContrastingColor from "../../utils/getFontContrastingColor";
-import { priceRegexp } from "../../utils/regExps";
+import { basicNameRegexp, priceRegexp } from "../../utils/regExps";
 import AccountIcon from "../AccountIcon";
 import validator from "validator";
 import checkForNotNullValues from "../../utils/checkForNotNullValues";
@@ -19,6 +19,7 @@ import useInfoDialog from "../../hooks/useInfoDialog";
 import InfoDialogTypes from "../../../types/infoDialog/infoDialogTypes.enum";
 import { useNavigate, useParams } from "react-router-dom";
 import useData from "../../hooks/useData";
+import { basicNameAllowedCharacters } from "../../utils/validationErrorMessages";
 
 interface IAccountFormHeaderProps {
   account?: IAccount | null;
@@ -132,10 +133,9 @@ const AccountForm = () => {
         min: 3,
         max: 32,
       }) ||
-      !validator.isAscii(name)
+      !validator.matches(name, basicNameRegexp)
     ) {
-      errors.name =
-        "Name can be from 3 to 32 characters long and contain only ASCII characters";
+      errors.name = `Name can be from 3 to 32 characters long and contain ${basicNameAllowedCharacters}`;
     }
 
     if (

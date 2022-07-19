@@ -5,7 +5,9 @@ import {
   IsOptional,
   IsString,
   Length,
+  Matches,
 } from "class-validator";
+import { basicNameRegEx } from "src/utils/regExps";
 
 export enum PersonCategories {
   family,
@@ -23,6 +25,7 @@ export class CreatePersonDto {
     description: "Name, e.g. first name and surname",
   })
   @IsString()
+  @Matches(basicNameRegEx)
   @Length(3, 128)
   name: string;
 
@@ -31,6 +34,7 @@ export class CreatePersonDto {
     description: "Notes about the person",
   })
   @IsString()
+  @Matches(basicNameRegEx)
   @IsOptional()
   @Length(0, 1024)
   notes: string;

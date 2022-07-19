@@ -1,5 +1,6 @@
 import { ApiProperty, OmitType, PartialType } from "@nestjs/swagger";
 import {
+  IsAlphanumeric,
   IsEnum,
   IsHexColor,
   IsNumber,
@@ -8,6 +9,7 @@ import {
   Matches,
   Min,
 } from "class-validator";
+import { basicNameRegEx } from "src/utils/regExps";
 
 export enum AccountIcons {
   "wallet",
@@ -31,8 +33,8 @@ export enum AccountIcons {
 
 export class CreateAccountDto {
   @IsString()
-  @Length(1, 20)
-  @Matches(/^[A-Za-z0-9.\-\_\s]+$/)
+  @Length(3, 32)
+  @Matches(basicNameRegEx)
   @ApiProperty({
     type: String,
     description: "Account name",
@@ -62,6 +64,8 @@ export class CreateAccountDto {
   currentBalance: number;
 
   @IsString()
+  @Length(1, 10)
+  @IsAlphanumeric("pl-PL")
   @ApiProperty({
     type: "string",
     description: "The currency",

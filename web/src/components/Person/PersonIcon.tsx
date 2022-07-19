@@ -14,13 +14,20 @@ import getFontContrastingColor from "../utils/getFontContrastingColor";
 
 interface IPersonIconProps {
   category: PersonCategories;
+  bgSize?: string;
+  iconSize?: number;
+  zeroPadding?: boolean;
 }
 
-const PersonIcon = ({ category }: IPersonIconProps) => {
+const PersonIcon = ({
+  category,
+  bgSize = "3rem",
+  iconSize = 24,
+  zeroPadding = false,
+}: IPersonIconProps) => {
   const getIcon = useCallback(
-    (
-      props: IconBaseProps = { color: "#ffffff", size: 24 }
-    ): React.ReactNode => {
+    (props: IconBaseProps = { color: "#ffffff" }): React.ReactNode => {
+      props.size = iconSize;
       switch (category) {
         case PersonCategories.family:
           return <FaHouseUser {...props} />;
@@ -40,7 +47,7 @@ const PersonIcon = ({ category }: IPersonIconProps) => {
           return <FaBars {...props} />;
       }
     },
-    [category]
+    [category, iconSize]
   );
   const getColor = useMemo((): string => {
     switch (category) {
@@ -65,15 +72,18 @@ const PersonIcon = ({ category }: IPersonIconProps) => {
 
   return (
     <div
-      className={`p-3 rounded-xl w-12 h-12 flex justify-center items-center`}
+      className={`rounded-xl flex justify-center items-center`}
       style={{
+        padding: zeroPadding ? 0 : "0.75rem",
         backgroundColor: getColor,
+        width: bgSize,
+        height: bgSize,
       }}
     >
       {getIcon({
         // color: getFontContrastingColor(getColor),
         color: "#ffffff", //For now all icons are rather dark colors, so white font color is fine
-        size: 24,
+        className: "shrink-0",
       })}
     </div>
   );
