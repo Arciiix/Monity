@@ -28,6 +28,7 @@ import PersonCategories from "../../../types/person/personCategories.enum";
 import IPerson from "../../../types/person/person.interface";
 import { basicNameRegexp } from "../../utils/regExps";
 import { basicNameAllowedCharacters } from "../../utils/validationErrorMessages";
+import InputLengthAdornment from "../../InputLengthAdornment/InputLengthAdornment";
 
 interface IPersonFormHeaderProps {
   person?: IPerson | null;
@@ -231,6 +232,9 @@ const PersonForm = () => {
         required
         error={!!errors.name}
         helperText={errors.name || ""}
+        InputProps={{
+          endAdornment: <InputLengthAdornment value={name} maxLength={128} />,
+        }}
       />
 
       <TextField
@@ -242,6 +246,9 @@ const PersonForm = () => {
         inputProps={{ maxLength: 1024 }}
         error={!!errors.notes}
         helperText={errors.notes || ""}
+        InputProps={{
+          endAdornment: <InputLengthAdornment value={notes} maxLength={1024} />,
+        }}
       />
 
       <FormControl error={!!errors.category}>

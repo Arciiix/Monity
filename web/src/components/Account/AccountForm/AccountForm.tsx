@@ -20,6 +20,7 @@ import InfoDialogTypes from "../../../types/infoDialog/infoDialogTypes.enum";
 import { useNavigate, useParams } from "react-router-dom";
 import useData from "../../hooks/useData";
 import { basicNameAllowedCharacters } from "../../utils/validationErrorMessages";
+import InputLengthAdornment from "../../InputLengthAdornment/InputLengthAdornment";
 
 interface IAccountFormHeaderProps {
   account?: IAccount | null;
@@ -304,6 +305,9 @@ const AccountForm = () => {
         required
         error={!!errors.name}
         helperText={errors.name || ""}
+        InputProps={{
+          endAdornment: <InputLengthAdornment value={name} maxLength={32} />,
+        }}
       />
       <TextField
         onChange={handleCurrencyChange}
@@ -314,6 +318,11 @@ const AccountForm = () => {
         required
         error={!!errors.currency}
         helperText={errors.currency || ""}
+        InputProps={{
+          endAdornment: (
+            <InputLengthAdornment value={currency} maxLength={10} />
+          ),
+        }}
       />
       {!isEditing && (
         <TextField
