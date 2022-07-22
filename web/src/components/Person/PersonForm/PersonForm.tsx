@@ -235,6 +235,7 @@ const PersonForm = () => {
 
       <TextField
         onChange={handleNotesChange}
+        multiline
         value={notes}
         label="Notes"
         placeholder="That guy from school"
