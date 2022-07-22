@@ -28,6 +28,7 @@ import useAppBarContent from "../../hooks/useAppBarContent";
 import useConfirmDialog from "../../hooks/useConfirmDialog";
 import useData from "../../hooks/useData";
 import useInfoDialog from "../../hooks/useInfoDialog";
+import useTitle from "../../hooks/useTitle";
 import LoadingOverlay from "../../Loading/LoadingOverlay/LoadingOverlay";
 import PersonIcon from "../../Person/PersonIcon";
 import PersonListItem from "../../Person/PersonListItem";
@@ -69,6 +70,7 @@ const ManagePeople = () => {
   const appBarContent = useAppBarContent();
   const confirm = useConfirmDialog();
   const { fetchPeople } = useData();
+  const title = useTitle();
 
   const [isLoading, setIsLoading] = useState(false);
 
@@ -170,6 +172,7 @@ const ManagePeople = () => {
 
   useEffect(() => {
     appBarContent(<ManagePeopleHeader />);
+    title("Manage people");
 
     return () => {
       appBarContent(null);

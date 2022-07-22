@@ -23,6 +23,7 @@ import useAppBarContent from "../../hooks/useAppBarContent";
 import useConfirmDialog from "../../hooks/useConfirmDialog";
 import useData from "../../hooks/useData";
 import useInfoDialog from "../../hooks/useInfoDialog";
+import useTitle from "../../hooks/useTitle";
 import LoadingOverlay from "../../Loading/LoadingOverlay/LoadingOverlay";
 import { AxiosErr, fetch, isAxiosErr } from "../../utils/axios";
 import getFontContrastingColor from "../../utils/getFontContrastingColor";
@@ -42,6 +43,7 @@ const ManageAccounts = () => {
   const appBarContent = useAppBarContent();
   const confirm = useConfirmDialog();
   const { fetchAccounts } = useData();
+  const title = useTitle();
 
   const [isLoading, setIsLoading] = useState(false);
 
@@ -146,6 +148,8 @@ const ManageAccounts = () => {
 
   useEffect(() => {
     appBarContent(<ManageAccountsHeader />);
+
+    title("Manage accounts");
 
     return () => {
       appBarContent(null);

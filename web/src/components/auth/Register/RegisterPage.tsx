@@ -3,7 +3,7 @@ import Button from "@mui/material/Button";
 import Box from "@mui/material/Box";
 import FormControl from "@mui/material/FormControl";
 import Logo from "../../Logo/Logo";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import LoadingOverlay from "../../Loading/LoadingOverlay/LoadingOverlay";
 import validator from "validator";
 import InputAdornment from "@mui/material/InputAdornment";
@@ -23,12 +23,14 @@ import Checkbox from "@mui/material/Checkbox";
 import { AxiosErr, isAxiosErr } from "../../utils/axios";
 import useInfoDialog from "../../hooks/useInfoDialog";
 import { toast } from "react-toastify";
+import useTitle from "../../hooks/useTitle";
 
 function RegisterPage() {
-  const setUser = useSetRecoilState(userState);
-
+  const title = useTitle();
   const navigate = useNavigate();
   const { addToInfoDialogs, displayUnknownErrorDialog } = useInfoDialog();
+
+  const setUser = useSetRecoilState(userState);
 
   const [login, setLogin] = useState("");
   const [password, setPassword] = useState("");
@@ -219,6 +221,10 @@ function RegisterPage() {
       }
     }
   };
+
+  useEffect(() => {
+    title("Register");
+  }, []);
 
   return (
     <Box>

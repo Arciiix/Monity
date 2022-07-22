@@ -21,6 +21,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import useData from "../../hooks/useData";
 import { basicNameAllowedCharacters } from "../../utils/validationErrorMessages";
 import InputLengthAdornment from "../../InputLengthAdornment/InputLengthAdornment";
+import useTitle from "../../hooks/useTitle";
 
 interface IAccountFormHeaderProps {
   account?: IAccount | null;
@@ -64,6 +65,7 @@ const AccountForm = () => {
   const navigate = useNavigate();
   const { fetchAccounts } = useData();
   const { id } = useParams();
+  const title = useTitle();
 
   const [isEditing, setIsEditing] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -241,6 +243,7 @@ const AccountForm = () => {
       setName(account.data.name);
 
       setOldAccount(account.data as IAccount);
+      title(`Edit ${account.data.name}`);
       appBarContent(<AccountFormHeader account={account.data as IAccount} />);
     } catch (err: AxiosErr) {
       const error = isAxiosErr(err);
@@ -256,6 +259,8 @@ const AccountForm = () => {
       setIsLoading(true);
       setIsEditing(true);
       fetchOldAccount(id);
+    } else {
+      title("Add account");
     }
 
     appBarContent(<AccountFormHeader account={null} />);

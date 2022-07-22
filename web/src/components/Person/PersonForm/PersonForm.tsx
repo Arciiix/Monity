@@ -29,6 +29,7 @@ import IPerson from "../../../types/person/person.interface";
 import { basicNameRegexp } from "../../utils/regExps";
 import { basicNameAllowedCharacters } from "../../utils/validationErrorMessages";
 import InputLengthAdornment from "../../InputLengthAdornment/InputLengthAdornment";
+import useTitle from "../../hooks/useTitle";
 
 interface IPersonFormHeaderProps {
   person?: IPerson | null;
@@ -64,6 +65,7 @@ const PersonForm = () => {
   const navigate = useNavigate();
   const { fetchPeople } = useData();
   const { id } = useParams();
+  const title = useTitle();
 
   const [isEditing, setIsEditing] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -196,6 +198,7 @@ const PersonForm = () => {
       setIsFavorite(personData.isFavorite);
 
       setOldPerson(personData);
+      title(`Edit ${personData.name}`);
       appBarContent(<PersonFormHeader person={personData} />);
     } catch (err: AxiosErr) {
       const error = isAxiosErr(err);
@@ -211,6 +214,8 @@ const PersonForm = () => {
       setIsLoading(true);
       setIsEditing(true);
       fetchOldPerson(id);
+    } else {
+      title("Add person");
     }
 
     appBarContent(<PersonFormHeader person={null} />);

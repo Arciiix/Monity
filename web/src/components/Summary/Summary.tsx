@@ -1,11 +1,14 @@
 import { useEffect, useState } from "react";
 import { useRecoilValue } from "recoil";
 import userState from "../../atoms/user/user.atom";
+import useTitle from "../hooks/useTitle";
 import { fetch } from "../utils/axios";
 
 const Summary = () => {
   const user = useRecoilValue(userState);
   const [testFetchData, setTestFetchData] = useState({});
+
+  const title = useTitle();
 
   const testFetch = async () => {
     const response = await fetch.get("/v1/user/me");
@@ -13,6 +16,8 @@ const Summary = () => {
   };
   useEffect(() => {
     const interval = setInterval(testFetch, 5000);
+    title("Dashboard");
+
     return () => {
       clearInterval(interval);
     };
