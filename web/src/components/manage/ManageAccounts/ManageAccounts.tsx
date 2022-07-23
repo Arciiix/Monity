@@ -2,6 +2,7 @@ import {
   AccountBalanceWallet,
   Add,
   Check,
+  Close,
   Delete,
   Reorder,
 } from "@mui/icons-material";
@@ -16,7 +17,13 @@ import {
   Tooltip,
 } from "@mui/material";
 import { blue } from "@mui/material/colors";
-import { useEffect, useLayoutEffect, useMemo, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useState,
+} from "react";
 import { FaWallet } from "react-icons/fa";
 import { useLocation, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
@@ -33,12 +40,17 @@ import useData from "../../hooks/useData";
 import useInfoDialog from "../../hooks/useInfoDialog";
 import useTitle from "../../hooks/useTitle";
 import LoadingOverlay from "../../Loading/LoadingOverlay/LoadingOverlay";
+import ReorderableList from "../../ReorderableList/ReorderableList";
 import { AxiosErr, fetch, isAxiosErr } from "../../utils/axios";
 import getFontContrastingColor from "../../utils/getFontContrastingColor";
+import getState from "../../utils/getState";
 
 interface IManageAccountsHeaderProps {
   isReordering: boolean;
-  onReorder: (wasReordering: boolean) => void;
+  onReorder: (
+    wasReordering: boolean,
+    saveChanges: boolean
+  ) => void | Promise<void>;
 }
 const ManageAccountsHeader = ({
   isReordering,
@@ -63,8 +75,18 @@ const ManageAccountsHeader = ({
         </span>
       </div>
       <div>
+        {isReordering && (
+          <Tooltip
+            onClick={() => onReorder(isReordering, false)}
+            title="Cancel reordering"
+          >
+            <IconButton>
+              <Close color="secondary" />
+            </IconButton>
+          </Tooltip>
+        )}
         <Tooltip
-          onClick={() => onReorder(isReordering)}
+          onClick={() => onReorder(isReordering, true)}
           title="Reorder accounts"
         >
           <IconButton>
@@ -89,6 +111,9 @@ const ManageAccounts = () => {
   const [isReordering, setIsReordering] = useState(false);
 
   const [allAccounts, setAllAccounts] = useRecoilState(allAccountsState);
+  const [tempAccountsReordering, setTempAccountsReordering] = useState<
+    IAccount[]
+  >([]);
   const handleDeleteAccount = async (e: IAccount) => {
     if (allAccounts.length <= 1) {
       toast.warn("You cannot delete the only account you have");
@@ -141,19 +166,30 @@ const ManageAccounts = () => {
     await fetchAccounts();
     setIsLoading(false);
   };
-  const handleAddAccount = () => {
+  const handleAddAccount = useCallback(() => {
     navigate("add");
-  };
-  const handleEditAccount = (account: IAccount) => {
+  }, []);
+  const handleEditAccount = useCallback((account: IAccount) => {
     navigate(`edit/${account.id}`);
-  };
+  }, []);
 
-  const handleReorder = (wasReordering: boolean) => {
-    console.log(wasReordering);
+  const handleReorder = async (
+    wasReordering: boolean,
+    saveChanges: boolean = true
+  ): Promise<void> => {
     if (wasReordering) {
-      //TODO: Save the order
+      if (saveChanges) {
+        // Save the order to the database
+        const tempAccounts = await getState(setTempAccountsReordering); //Has to get the state from the setter because of caching
+
+        setAllAccounts(tempAccounts);
+      }
+
+      setTempAccountsReordering([]);
+    } else {
+      setTempAccountsReordering(allAccounts);
     }
-    setIsReordering((prev) => !wasReordering);
+    setIsReordering(() => !wasReordering);
   };
 
   const askToLeavePage = async (): Promise<boolean> => {
@@ -162,43 +198,42 @@ const ManageAccounts = () => {
     );
   };
 
-  const renderItems = useMemo((): JSX.Element[] => {
-    return allAccounts.map((e) => {
-      return (
-        <ListItem
-          key={e.name}
-          secondaryAction={
-            <IconButton
-              edge="end"
-              aria-label="delete"
-              onClick={() => handleDeleteAccount(e)}
+  const renderItem = (e: IAccount) => {
+    return (
+      <ListItem
+        key={e.name}
+        secondaryAction={
+          <IconButton
+            edge="end"
+            aria-label="delete"
+            onClick={() => handleDeleteAccount(e)}
+          >
+            <Delete />
+          </IconButton>
+        }
+      >
+        <ListItemButton onClick={() => handleEditAccount(e)}>
+          <ListItemIcon>
+            <div
+              className={`p-3 rounded-xl w-12 h-12 flex justify-center items-center`}
+              style={{
+                backgroundColor: e.color,
+              }}
             >
-              <Delete />
-            </IconButton>
-          }
-        >
-          <ListItemButton onClick={() => handleEditAccount(e)}>
-            <ListItemIcon>
-              <div
-                className={`p-3 rounded-xl w-12 h-12 flex justify-center items-center`}
-                style={{
-                  backgroundColor: e.color,
-                }}
-              >
-                <AccountIcon
-                  name={AccountIcons[e.icon] as unknown as AccountIcons}
-                  color={getFontContrastingColor(e.color)}
-                />
-              </div>
-            </ListItemIcon>
-            <ListItemText
-              primary={e.name}
-              secondary={e.currency}
-            ></ListItemText>
-          </ListItemButton>
-        </ListItem>
-      );
-    });
+              <AccountIcon
+                name={AccountIcons[e.icon] as unknown as AccountIcons}
+                color={getFontContrastingColor(e.color)}
+              />
+            </div>
+          </ListItemIcon>
+          <ListItemText primary={e.name} secondary={e.currency}></ListItemText>
+        </ListItemButton>
+      </ListItem>
+    );
+  };
+
+  const renderItems = useMemo((): JSX.Element[] => {
+    return allAccounts.map(renderItem);
   }, [allAccounts]);
 
   useEffect(() => {
@@ -224,7 +259,18 @@ const ManageAccounts = () => {
     <div className="flex flex-col h-full w-full">
       <LoadingOverlay isLoading={isLoading} />
       {/* No need for no accounts screen because every user has to have at least one account */}
-      <List>{renderItems}</List>
+      <List>
+        {isReordering ? (
+          <ReorderableList
+            items={tempAccountsReordering}
+            itemsSetter={setTempAccountsReordering}
+            ids={tempAccountsReordering.map((e) => e.id as string)}
+            renderer={renderItem}
+          />
+        ) : (
+          renderItems
+        )}
+      </List>
 
       <Tooltip className="fixed bottom-4 right-4" title="Add account">
         <Fab
