@@ -1,4 +1,10 @@
-import { AccountBalanceWallet, Add, Delete } from "@mui/icons-material";
+import {
+  AccountBalanceWallet,
+  Add,
+  Check,
+  Delete,
+  Reorder,
+} from "@mui/icons-material";
 import {
   Fab,
   IconButton,
@@ -9,9 +15,10 @@ import {
   ListItemText,
   Tooltip,
 } from "@mui/material";
-import { useEffect, useMemo, useState } from "react";
+import { blue } from "@mui/material/colors";
+import { useEffect, useLayoutEffect, useMemo, useState } from "react";
 import { FaWallet } from "react-icons/fa";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { useRecoilState } from "recoil";
 import { allAccountsState } from "../../../atoms/account/accounts.atom";
@@ -20,6 +27,7 @@ import AccountIcons from "../../../types/account/accountIcons.enum";
 import InfoDialogTypes from "../../../types/infoDialog/infoDialogTypes.enum";
 import AccountIcon from "../../Account/AccountIcon";
 import useAppBarContent from "../../hooks/useAppBarContent";
+import useBlockingPrompt from "../../hooks/useBlockingPrompt";
 import useConfirmDialog from "../../hooks/useConfirmDialog";
 import useData from "../../hooks/useData";
 import useInfoDialog from "../../hooks/useInfoDialog";
@@ -28,11 +36,42 @@ import LoadingOverlay from "../../Loading/LoadingOverlay/LoadingOverlay";
 import { AxiosErr, fetch, isAxiosErr } from "../../utils/axios";
 import getFontContrastingColor from "../../utils/getFontContrastingColor";
 
-const ManageAccountsHeader = () => {
+interface IManageAccountsHeaderProps {
+  isReordering: boolean;
+  onReorder: (wasReordering: boolean) => void;
+}
+const ManageAccountsHeader = ({
+  isReordering,
+  onReorder,
+}: IManageAccountsHeaderProps) => {
   return (
-    <div className="flex flex-row items-center gap-3">
-      <FaWallet size={32} />
-      <span className="text-2xl">Manage accounts</span>
+    <div className="flex flex-row items-center justify-between w-full pr-5">
+      <div className="flex flex-row items-center gap-3">
+        <FaWallet
+          size={32}
+          style={{
+            color: isReordering ? blue[400] : "white",
+          }}
+        />
+        <span
+          className="text-2xl"
+          style={{
+            color: isReordering ? blue[400] : "white",
+          }}
+        >
+          {isReordering ? "Reorder accounts" : "Manage accounts"}
+        </span>
+      </div>
+      <div>
+        <Tooltip
+          onClick={() => onReorder(isReordering)}
+          title="Reorder accounts"
+        >
+          <IconButton>
+            {isReordering ? <Check color="primary" /> : <Reorder />}
+          </IconButton>
+        </Tooltip>
+      </div>
     </div>
   );
 };
@@ -42,10 +81,12 @@ const ManageAccounts = () => {
   const navigate = useNavigate();
   const appBarContent = useAppBarContent();
   const confirm = useConfirmDialog();
+  const location = useLocation();
   const { fetchAccounts } = useData();
   const title = useTitle();
 
   const [isLoading, setIsLoading] = useState(false);
+  const [isReordering, setIsReordering] = useState(false);
 
   const [allAccounts, setAllAccounts] = useRecoilState(allAccountsState);
   const handleDeleteAccount = async (e: IAccount) => {
@@ -107,6 +148,20 @@ const ManageAccounts = () => {
     navigate(`edit/${account.id}`);
   };
 
+  const handleReorder = (wasReordering: boolean) => {
+    console.log(wasReordering);
+    if (wasReordering) {
+      //TODO: Save the order
+    }
+    setIsReordering((prev) => !wasReordering);
+  };
+
+  const askToLeavePage = async (): Promise<boolean> => {
+    return await confirm(
+      "Do you want to leave this page? You didn't save the new order of the accounts"
+    );
+  };
+
   const renderItems = useMemo((): JSX.Element[] => {
     return allAccounts.map((e) => {
       return (
@@ -147,14 +202,23 @@ const ManageAccounts = () => {
   }, [allAccounts]);
 
   useEffect(() => {
-    appBarContent(<ManageAccountsHeader />);
+    appBarContent(
+      <ManageAccountsHeader
+        isReordering={isReordering}
+        onReorder={handleReorder}
+      />
+    );
+  }, [isReordering]);
 
+  useEffect(() => {
     title("Manage accounts");
 
     return () => {
       appBarContent(null);
     };
   }, []);
+
+  useBlockingPrompt(isReordering, askToLeavePage);
 
   return (
     <div className="flex flex-col h-full w-full">
